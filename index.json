@@ -1,0 +1,270 @@
+{
+  "languagePairs": [
+    { "id": "he-en", "title": "Hebrew → English" },
+    { "id": "pl-en", "title": "Polish → English" },
+    { "id": "ar-he", "title": "Arabic → Hebrew" },
+    { "id": "es-he", "title": "Spanish → Hebrew" }
+  ],
+
+  "groups": [
+    { "id": "grammar", "title": "Grammar & Structure" },
+    { "id": "vocabulary", "title": "Vocabulary & Meaning" },
+    { "id": "daily", "title": "Daily Life" },
+    { "id": "communication", "title": "Communication" },
+    { "id": "advanced", "title": "Advanced & Fluency" },
+    { "id": "others", "title": "Others" }
+  ],
+
+  "topics": [
+    {
+      "id": "verb_infinitives",
+      "title": "Verb infinitives",
+      "group": "grammar",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "verb_conjugations",
+      "title": "Verb conjugations / בניינים",
+      "group": "grammar",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "tenses",
+      "title": "Past / Present / Future",
+      "group": "grammar",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "nouns",
+      "title": "Nouns",
+      "group": "grammar",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "adjectives",
+      "title": "Adjectives",
+      "group": "grammar",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "adverbs",
+      "title": "Adverbs",
+      "group": "grammar",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "pronouns",
+      "title": "Pronouns",
+      "group": "grammar",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "prepositions",
+      "title": "Prepositions",
+      "group": "grammar",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "connectors",
+      "title": "Connectors",
+      "group": "grammar",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "singular_plural",
+      "title": "Singular / Plural",
+      "group": "grammar",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "gender",
+      "title": "Masculine / Feminine",
+      "group": "grammar",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+
+    {
+      "id": "opposites",
+      "title": "Opposites",
+      "group": "vocabulary",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "confusing_words",
+      "title": "Confusing words",
+      "group": "vocabulary",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "false_friends",
+      "title": "False friends",
+      "group": "vocabulary",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "collocations",
+      "title": "Collocations",
+      "group": "vocabulary",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "idioms",
+      "title": "Idioms",
+      "group": "vocabulary",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "slang",
+      "title": "Slang",
+      "group": "vocabulary",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+
+    {
+      "id": "daily_use",
+      "title": "Daily use",
+      "group": "daily",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "food_shopping",
+      "title": "Food & Shopping",
+      "group": "daily",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "home_family",
+      "title": "Home & Family",
+      "group": "daily",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "work_professions",
+      "title": "Work & Professions",
+      "group": "daily",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "transport",
+      "title": "Transport & Navigation",
+      "group": "daily",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "studies",
+      "title": "Studies",
+      "group": "daily",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "time_dates",
+      "title": "Time & Dates",
+      "group": "daily",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "emotions",
+      "title": "Emotions",
+      "group": "daily",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+
+    {
+      "id": "sentences",
+      "title": "Sentences",
+      "group": "communication",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "questions_answers",
+      "title": "Questions & Answers",
+      "group": "communication",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "politeness",
+      "title": "Requests & Politeness",
+      "group": "communication",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "phone_messages",
+      "title": "Phone calls & Messages",
+      "group": "communication",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "short_conversations",
+      "title": "Short conversations",
+      "group": "communication",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+
+    {
+      "id": "advanced_control",
+      "title": "Advanced control",
+      "group": "advanced",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "functional_language",
+      "title": "Functional language",
+      "group": "advanced",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "phrasal_verbs",
+      "title": "Phrasal verbs",
+      "group": "advanced",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+
+    {
+      "id": "emergency",
+      "title": "Emergency situations",
+      "group": "others",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    },
+    {
+      "id": "custom",
+      "title": "Custom topics by request",
+      "group": "others",
+      "languages": ["he-en", "pl-en", "ar-he", "es-he"],
+      "files": []
+    }
+  ]
+}
