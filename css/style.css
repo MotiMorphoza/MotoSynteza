@@ -419,18 +419,95 @@ margin-top: 0.3rem; /* מרווח קטן יותר */
 }
 
 /* מובייל */
+/* ===== MOBILE FIX ===== */
 @media (max-width: 900px) {
+
+  /* מעבר לפריסה אנכית */
+  .shell-layout {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* סיידבר למעלה */
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    padding: 2rem 1rem;
+    gap: 1.2rem;
+  }
+
+  .logo {
+    font-size: 2rem;
+  }
+
+  .tagline {
+    font-size: 1rem;
+  }
+
+  /* תפריט יותר קומפקטי */
+  .menu {
+    margin: 1.5rem 0;
+    gap: 0.8rem;
+  }
+
+  .menu a {
+    font-size: 1.3rem;
+  }
+
+  /* אזור תוכן */
+  .content-pane {
+    width: 100%;
+    margin: 0;
+    height: auto;
+    min-height: auto;
+    overflow: visible;
+  }
+
+  /* ===== PROJECTS ===== */
+
+  .project-item {
+    padding: 26px 18px;
+  }
+
   .project-grid,
   .project-item.reverse .project-grid {
     grid-template-columns: 1fr;
+    gap: 18px;
   }
 
   .project-media {
-    height: 240px;
+    width: 100%;
+    height: auto;
+    max-height: none;
   }
 
   .project-text {
     max-width: 100%;
+    padding: 18px;
+  }
+
+  .project-text h2 {
+    font-size: 1.2rem;
+  }
+
+  /* קו הפרדה קטן יותר */
+  .separator::before {
+    height: 40px;
+  }
+
+  /* ABOUT PAGE */
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .about-text {
+    text-align: left;
+  }
+
+  .about-image-wrap img {
+    width: 100%;
+    height: auto;
   }
 }
-
