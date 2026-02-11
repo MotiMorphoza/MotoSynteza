@@ -1,98 +1,148 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const viewport = document.querySelector("[data-slideshow]");
-  if (!viewport) return;
+/* =========================
+   MotoSynteza Slideshow
+   Stable Version
+========================= */
 
-  const path = viewport.dataset.path || "images/main";
-  const maxImages = 100;
-  const VERSION = Date.now();
+if (window.__motoSlideInit) {
+  console.warn("Slideshow already initialized.");
+} else {
+  window.__motoSlideInit = true;
 
-  const images = [];
-  let index = 0;
-  let timer = null;
-  let running = false;
+  document.addEventListener("DOMContentLoaded", () => {
 
-  // create slide layers
-  const slideA = document.createElement("img");
-  const slideB = document.createElement("img");
+    const viewport = document.querySelector("[data-slideshow]");
+    if (!viewport) return;
 
-  slideA.className = "slide active";
-  slideB.className = "slide";
+    const path = viewport.dataset.path || "images/main";
+    const maxImages = 100;
+    const VERSION = Date.now();
 
-  viewport.appendChild(slideA);
-  viewport.appendChild(slideB);
+    const images = [];
+    let index = 0;
+    let timer = null;
+    let running = false;
 
-  let current = slideA;
-  let next = slideB;
+    /* -------------------------
+       Create 2 slide layers
+    -------------------------- */
 
-  function detect(i) {
-    if (i > maxImages) {
-      start();
-      return;
+    const slideA = document.createElement("img");
+    const slideB = document.createElement("img");
+
+    slideA.className = "slide active";
+    slideB.className = "slide";
+
+    viewport.appendChild(slideA);
+    viewport.appendChild(slideB);
+
+    let current = slideA;
+    let next = slideB;
+
+    /* -------------------------
+       Detect images
+    -------------------------- */
+
+    function detect(i) {
+      if (i > maxImages) {
+        start();
+        return;
+      }
+
+      const src = `${path}/slide${i}.jpg?${VERSION}`;
+      const img = new Image();
+
+      img.onload = () => {
+        images.push(src);
+        detect(i + 1);
+      };
+
+      img.onerror = () => {
+        start();
+      };
+
+      img.src = src;
     }
 
-    const src = `${path}/slide${i}.jpg?${VERSION}`;
-    const img = new Image();
+    /* -------------------------
+       Change slide
+    -------------------------- */
 
-    img.onload = () => {
-      images.push(src);
-      detect(i + 1);
-    };
+    function change() {
+      if (images.length === 0) return;
 
-    img.onerror = () => {
-      start();
-    };
+      index = (index + 1) % images.length;
+      next.src = images[index];
 
-    img.src = src;
-  }
+      // ensure only one active at any time
+      current.classList.remove("active");
+      next.classList.add("active");
 
-  function change() {
-    if (!running || images.length === 0) return;
+      const temp = current;
+      current = next;
+      next = temp;
+    }
 
-    index = (index + 1) % images.length;
-    next.src = images[index];
+    /* -------------------------
+       Loop
+    -------------------------- */
 
-    next.classList.add("active");
-    current.classList.remove("active");
+    function loop() {
+      timer = setTimeout(() => {
+        change();
+        if (running) loop();
+      }, 2500);
+    }
 
-    const temp = current;
-    current = next;
-    next = temp;
-  }
+    function startAuto() {
+      if (running) return;
+      running = true;
+      loop();
+    }
 
-  function loop() {
-    if (!running) return;
-    change();
-    timer = setTimeout(loop, 2500);
-  }
+    function stopAuto() {
+      running = false;
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+    }
 
-  function startAuto() {
-    if (running) return;
-    running = true;
-    loop();
-  }
+    /* -------------------------
+       Init
+    -------------------------- */
 
-  function stopAuto() {
-    running = false;
-    clearTimeout(timer);
-  }
+    function start() {
+      if (images.length === 0) return;
 
-  function start() {
-    if (images.length === 0) return;
+      index = Math.floor(Math.random() * images.length);
+      current.src = images[index];
 
-    index = Math.floor(Math.random() * images.length);
-    current.src = images[index];
+      // Hover stop
+      slideA.addEventListener("mouseenter", stopAuto);
+      slideA.addEventListener("mouseleave", startAuto);
 
-    viewport.addEventListener("mouseenter", stopAuto);
-    viewport.addEventListener("mouseleave", startAuto);
-    viewport.addEventListener("click", change);
+      slideB.addEventListener("mouseenter", stopAuto);
+      slideB.addEventListener("mouseleave", startAuto);
 
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) stopAuto();
-      else startAuto();
-    });
+      // Manual click
+      viewport.addEventListener("click", () => {
+        stopAuto();
+        change();
+      });
 
-    startAuto();
-  }
+      // Page visibility
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          stopAuto();
+        } else {
+          startAuto();
+        }
+      });
 
-  detect(0);
-});
+      startAuto();
+    }
+
+    detect(0);
+
+  });
+}

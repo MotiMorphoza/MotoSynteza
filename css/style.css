@@ -29,7 +29,7 @@ body {
 .slide-viewport {
   position: relative;
   width: 100%;
-  height: 100vh;
+  min-height: 100dvh;
   background: #000;
   overflow: hidden;
   padding: 4rem 2rem; /* רווח עליון ותחתון */
@@ -40,12 +40,11 @@ body {
   position: absolute;
   inset: 0;
   margin: auto;
-
+  background: #000;
   max-width: 100%;
   max-height: calc(100% - 8rem); /* מתאים לרווחים */
   width: auto;
   height: auto;
-
   object-fit: contain;
 
   opacity: 0;
@@ -69,7 +68,7 @@ body {
 /* ===== LANDING ===== */
 
 .page-landing {
-  min-height: 100vh;
+  height: 100vh;
 }
 
 .landing {
@@ -147,7 +146,7 @@ body {
 /* Shell pages */
 
 .shell-layout {
-  min-height: 100vh;
+  height: 100vh;
   display: grid;
   grid-template-columns: 30% 70%;
 }
@@ -186,7 +185,7 @@ body {
   font-size: clamp(2.3rem, 2.7vw, 2.7rem);
   font-weight: 500;
   letter-spacing: 0.04em;
-  margin: 1;
+  margin: 1rem;
 }
 
 .tagline {
@@ -242,7 +241,7 @@ body {
 }
 
 .content-pane {
-  min-height: 100vh;
+  height: 100vh;
   overflow-y: auto;
   position: relative;
 }
@@ -404,6 +403,14 @@ body {
   height: 60px;
   background: rgba(255, 255, 255, 0.35);
   margin: 6px 0;
+}
+
+/* ===== ABOUT – Vertical Layout Only ===== */
+
+.about-pane .about-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
 }
 
 /* ===== MOBILE PROJECT CARDS ===== */
