@@ -146,7 +146,7 @@ body {
 /* Shell pages */
 
 .shell-layout {
-  height: 100vh;
+  min-height: 100dvh;
   display: grid;
   grid-template-columns: 30% 70%;
 }
@@ -219,29 +219,9 @@ body {
   color: #d4d4d4;
 }
 
-.social {
-  margin-top: auto;
-  list-style: none;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.9rem;
-}
-
-.social a {
-  color: #fff;
-  font-size: 1rem;
-  opacity: 0.9;
-  transition: opacity 180ms ease;
-}
-
-.social a:hover,
-.social a:focus-visible {
-  opacity: 1;
-}
 
 .content-pane {
-  height: 100vh;
+  min-height: 100dvh;
   overflow-y: auto;
   position: relative;
 }
@@ -306,27 +286,6 @@ body {
 .social a:hover {
   transform: scale(1.15);
   opacity: 0.9;
-}
-
-@media (max-width: 900px) {
-  .shell-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .sidebar {
-    border-right: 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    gap: 1rem;
-    align-items: center;
-  }
-
-  .content-pane {
-    min-height: 60vh;
-  }
-
-  .about-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* ===== PROJECTS PAGE ===== */
