@@ -418,79 +418,52 @@ margin-top: 0.3rem; /* מרווח קטן יותר */
   margin: 6px 0;
 }
 
-/* ===== MOBILE PROJECT CARDS ===== */
+/* מובייל */
+/* ===== MOBILE FIX ===== */
 @media (max-width: 900px) {
 
+  /* מעבר לפריסה אנכית */
   .shell-layout {
     display: flex;
     flex-direction: column;
   }
 
+  /* סיידבר למעלה */
   .sidebar {
     position: relative;
     width: 100%;
     height: auto;
     padding: 2rem 1rem;
+    gap: 1.2rem;
   }
 
+  .logo {
+    font-size: 2rem;
+  }
+
+  .tagline {
+    font-size: 1rem;
+  }
+
+  /* תפריט יותר קומפקטי */
+  .menu {
+    margin: 1.5rem 0;
+    gap: 0.8rem;
+  }
+
+  .menu a {
+    font-size: 1.3rem;
+  }
+
+  /* אזור תוכן */
   .content-pane {
     width: 100%;
     margin: 0;
     height: auto;
+    min-height: auto;
     overflow: visible;
   }
 
-  .projects-list {
-    padding: 1rem;
-    gap: 1.2rem;
-  }
-
-  .project-item {
-    padding: 0;
-    background: none !important;
-  }
-
-  .project-grid,
-  .project-item.reverse .project-grid {
-    display: block;
-  }
-
-  /* הכרטיס עצמו */
-  .project-item {
-    background: #111;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-  }
-
-  .project-media {
-    width: 100%;
-    height: auto;
-    max-height: none;
-    display: block;
-  }
-
-  .project-text {
-    border: none;
-    padding: 18px;
-    max-width: 100%;
-  }
-
-  .project-text h2 {
-    font-size: 1.2rem;
-    margin-bottom: 8px;
-  }
-
-  .project-text p {
-    font-size: 0.95rem;
-    line-height: 1.5;
-  }
-
-  /* מסתיר את קו ההפרדה במובייל */
-  .separator {
-    display: none;
-  }
-}
   /* ===== PROJECTS ===== */
 
   .project-item {
