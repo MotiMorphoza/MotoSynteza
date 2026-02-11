@@ -90,7 +90,7 @@ body {
 .landing-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: transparent;
   z-index: 2;
 }
 
@@ -125,10 +125,10 @@ transform: translateY(21vh); /* מזיז את כל הבלוק למטה */
 .landing-content h1,
 .landing-content p {
   text-shadow:
-    -2px -2px 0 #000,
-     2px -2px 0 #000,
-    -2px  2px 0 #000,
-     2px  2px 0 #000;
+    -1px -1px 0 #000,
+     1px -1px 0 #000,
+    -1px  1px 0 #000,
+     1px  1px 0 #000;
 }
 
 .landing-content h1 {
@@ -491,50 +491,4 @@ margin-top: 0.3rem; /* מרווח קטן יותר */
     display: none;
   }
 }
-  /* ===== PROJECTS ===== */
-
-  .project-item {
-    padding: 26px 18px;
-  }
-
-  .project-grid,
-  .project-item.reverse .project-grid {
-    grid-template-columns: 1fr;
-    gap: 18px;
-  }
-
-  .project-media {
-    width: 100%;
-    height: auto;
-    max-height: none;
-  }
-
-  .project-text {
-    max-width: 100%;
-    padding: 18px;
-  }
-
-  .project-text h2 {
-    font-size: 1.2rem;
-  }
-
-  /* קו הפרדה קטן יותר */
-  .separator::before {
-    height: 40px;
-  }
-
-  /* ABOUT PAGE */
-  .about-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-
-  .about-text {
-    text-align: left;
-  }
-
-  .about-image-wrap img {
-    width: 100%;
-    height: auto;
-  }
-}
+  
