@@ -348,6 +348,14 @@ body {
   margin: 6px 0;
 }
 
+.project-media {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+
+
 /* ===== ABOUT â€“ Vertical Layout Only ===== */
 
 .about-pane .about-grid {
