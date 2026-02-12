@@ -10,6 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const slideA = document.createElement("img");
   const slideB = document.createElement("img");
+  viewport.addEventListener("mouseenter", stop);
+  viewport.addEventListener("mouseleave", start);
+
 
   slideA.className = "slide active";
   slideB.className = "slide";
@@ -51,15 +54,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function start() {
-    if (running) return;
-    running = true;
-    loop();
-  }
+  if (running) return;
+  running = true;
+  loop();
+}
 
-  function stop() {
-    running = false;
-    if (timer) clearTimeout(timer);
-  }
+function stop() {
+  running = false;
+  if (timer) clearTimeout(timer);
+}
 
   viewport.addEventListener("click", () => {
     stop();
