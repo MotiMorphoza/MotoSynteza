@@ -50,8 +50,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 2500);
   }
 
-  viewport.addEventListener("mouseenter", stop);
-  viewport.addEventListener("mouseleave", start);
+  slideA.addEventListener("mouseenter", stop);
+  slideA.addEventListener("mouseleave", start);
+
+  slideB.addEventListener("mouseenter", stop);
+  slideB.addEventListener("mouseleave", start);
+
 
   function start() {
   if (running) return;
