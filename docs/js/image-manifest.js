@@ -20,11 +20,11 @@ window.__MANIFEST__ = {
     "slide9.jpg"
   ],
   "projects": [
-    {
-      "slug": "demon-Stration",
-      "key": "demon-stration",
-      "title": "Demon Stration",
-      "description": "An expressive visual narrative balancing provocation with theatrical composition.",
+  {
+      "slug": "unusuall-usual",
+      "key": "unusuall-usual",
+      "title": "uNuSuAll usual",
+      "description": "A study of ordinary places made strange through angle, rhythm, and timing.",
       "images": [
         "cover.jpg"
       ]
@@ -39,10 +39,10 @@ window.__MANIFEST__ = {
       ]
     },
     {
-      "slug": "unusuall-usual",
-      "key": "unusuall-usual",
-      "title": "uNuSuAll usual",
-      "description": "A study of ordinary places made strange through angle, rhythm, and timing.",
+      "slug": "demon-Stration",
+      "key": "demon-stration",
+      "title": "Demon Stration",
+      "description": "An expressive visual narrative balancing provocation with theatrical composition.",
       "images": [
         "cover.jpg"
       ]
