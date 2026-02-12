@@ -29,7 +29,7 @@ function copyWithHash(filePath) {
   return path.join(path.dirname(filePath), newName).replace(/\\/g, '/');
 }
 
-// העתקת תיקיות רגילות
+// העתקת תיקיות
 function copyFolder(src, dest) {
   if (!fs.existsSync(src)) return;
   fs.mkdirSync(dest, { recursive: true });
@@ -71,10 +71,8 @@ function getImages(folderPath) {
     .sort();
 }
 
-const manifest = {
-  landing: getImages('images/landing'),
-  main: getImages('images/main'),
-  const projectMeta = {
+// metadata לפרויקטים
+const projectMeta = {
   "demon-stration": {
     title: "Demon Stration",
     description: "An expressive visual narrative balancing provocation with theatrical composition."
@@ -112,14 +110,7 @@ const manifest = {
     : []
 };
 
-        .filter(f => fs.statSync(path.join('images/projects', f)).isDirectory())
-        .map(folder => ({
-          slug: folder,
-          images: getImages(path.join('images/projects', folder))
-        }))
-    : []
-};
-
+// כתיבת manifest
 fs.mkdirSync(path.join(OUT, 'js'), { recursive: true });
 fs.writeFileSync(
   path.join(OUT, 'js/image-manifest.js'),
