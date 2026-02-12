@@ -31,9 +31,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const text = document.createElement("div");
     text.className = "project-text";
     text.innerHTML =
-      "<h2>" +
-      project.slug.replace(/-/g, " ") +
-      "</h2>";
+    "<h2>" + project.title + "</h2>" +
+    "<p>" + project.description + "</p>";
+
 
     const link = document.createElement("a");
     link.href = "projects/" + project.slug + "/";

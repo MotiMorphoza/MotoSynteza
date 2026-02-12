@@ -74,8 +74,44 @@ function getImages(folderPath) {
 const manifest = {
   landing: getImages('images/landing'),
   main: getImages('images/main'),
+  const projectMeta = {
+  "demon-stration": {
+    title: "Demon Stration",
+    description: "An expressive visual narrative balancing provocation with theatrical composition."
+  },
+  "window-to-redemption": {
+    title: "Window to Redemption",
+    description: "A stark, cinematic glimpse into moments where darkness breaks and a new path appears."
+  },
+  "ohhhhh-your-god": {
+    title: "OHHHHH YOUR GOD",
+    description: "A loud visual collision of fear, irony, and reverence."
+  },
+  "unusual-usual": {
+    title: "uNuSuAll usual",
+    description: "A study of ordinary places made strange through angle, rhythm, and timing."
+  },
+  "windows-the-eyes-of-the-modern-soul": {
+    title: "Windows – The Eyes of the Modern Soul",
+    description: "Reflections of contemporary life framed through glass."
+  }
+};
+
+const manifest = {
+  landing: getImages('images/landing'),
+  main: getImages('images/main'),
   projects: fs.existsSync('images/projects')
     ? fs.readdirSync('images/projects')
+        .filter(f => fs.statSync(path.join('images/projects', f)).isDirectory())
+        .map(folder => ({
+          slug: folder,
+          title: projectMeta[folder]?.title || folder,
+          description: projectMeta[folder]?.description || "",
+          images: getImages(path.join('images/projects', folder))
+        }))
+    : []
+};
+
         .filter(f => fs.statSync(path.join('images/projects', f)).isDirectory())
         .map(folder => ({
           slug: folder,
