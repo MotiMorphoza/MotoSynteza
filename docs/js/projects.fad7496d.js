@@ -46,5 +46,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Fallback on error
-    media.onerror = () => {
-      media.classList.add("placeholder"
+media.onerror = () => {
+  media.classList.add("placeholder");
+  media.removeAttribute("src");
+};
+
