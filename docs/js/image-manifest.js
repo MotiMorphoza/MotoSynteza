@@ -30,8 +30,8 @@ window.__MANIFEST__ = {
     },
     {
       "slug": "ohhhhh_your_god",
-      "title": "ohhhhh_your_god",
-      "description": "",
+      "title": "OHHHHH YOUR GOD",
+      "description": "A loud visual collision of fear, irony, and reverence.",
       "images": [
         "cover.jpg",
         "oyg_00.jpg"
@@ -47,16 +47,16 @@ window.__MANIFEST__ = {
     },
     {
       "slug": "window_to_redemption",
-      "title": "window_to_redemption",
-      "description": "",
+      "title": "Window to Redemption",
+      "description": "A stark, cinematic glimpse into moments where darkness breaks and a new path appears.",
       "images": [
         "cover.jpg"
       ]
     },
     {
       "slug": "windows_eyes_of_the_modern_soul",
-      "title": "windows_eyes_of_the_modern_soul",
-      "description": "",
+      "title": "Windows – Eyes of the Modern Soul",
+      "description": "Reflections of contemporary life framed through glass.",
       "images": [
         "cover.jpg"
       ]
