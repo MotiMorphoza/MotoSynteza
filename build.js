@@ -150,10 +150,22 @@ fs.readdirSync(".")
     let html = fs.readFileSync(file, "utf8");
 
     Object.entries(hashedMap).forEach(([original, hashed]) => {
-      const originalFile = path.basename(original);
-      const hashedFile = path.basename(hashed);
-      html = html.replaceAll(originalFile, hashedFile);
-    });
+  const originalFile = path.basename(original);
+  const hashedFile = path.basename(hashed);
+
+  // Replace only inside src=""
+  html = html.replace(
+    new RegExp(`(<script[^>]+src=["'][^"']*)${originalFile}(["'])`, "g"),
+    `$1${hashedFile}$2`
+  );
+
+  // Replace only inside href=""
+  html = html.replace(
+    new RegExp(`(<link[^>]+href=["'][^"']*)${originalFile}(["'])`, "g"),
+    `$1${hashedFile}$2`
+  );
+});
+
 
     fs.writeFileSync(path.join(OUT, file), html);
   });
