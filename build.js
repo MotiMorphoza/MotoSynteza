@@ -29,13 +29,6 @@ function copyWithHash(filePath) {
   return path.join(path.dirname(filePath), newName).replace(/\\/g, '/');
 }
 
-// כתיבת manifest
-fs.mkdirSync(path.join(OUT, 'js'), { recursive: true });
-fs.writeFileSync(
-  path.join(OUT, 'js/image-manifest.js'),
-  `window.__MANIFEST__ = ${JSON.stringify(manifest, null, 2)};`
-);
-
 
 // העתקת תיקיות
 function copyFolder(src, dest) {
@@ -89,27 +82,28 @@ function normalizeSlug(name) {
 
 // כאן אתה מגדיר כותרות ותיאורים
 const projectMeta = {
-  "demon_stration": {
+  "demon-stration": {
     title: "Demon Stration",
     description: "An expressive visual narrative balancing provocation with theatrical composition."
   },
-  "window_to_redemption": {
+  "window-to-redemption": {
     title: "Window to Redemption",
     description: "A stark, cinematic glimpse into moments where darkness breaks and a new path appears."
   },
-  "ohhhhh_your_god": {
+  "ohhhhh-your-god": {
     title: "OHHHHH YOUR GOD",
     description: "A loud visual collision of fear, irony, and reverence."
   },
-  "unusuall_usual": {
+  "unusuall-usual": {
     title: "uNuSuAll usual",
     description: "A study of ordinary places made strange through angle, rhythm, and timing."
   },
-  "windows_eyes_of_the_modern_soul": {
+  "windows-eyes-of-the-modern-soul": {
     title: "Windows – Eyes of the Modern Soul",
     description: "Reflections of contemporary life framed through glass."
   }
 };
+
 
 const manifest = {
   landing: getImages('images/landing'),
@@ -129,6 +123,14 @@ const manifest = {
         })
     : []
 };
+
+// כתיבת manifest
+fs.mkdirSync(path.join(OUT, 'js'), { recursive: true });
+fs.writeFileSync(
+  path.join(OUT, 'js/image-manifest.js'),
+  `window.__MANIFEST__ = ${JSON.stringify(manifest, null, 2)};`
+);
+
 
 // ---------- HTML ----------
 fs.readdirSync('.')
