@@ -82,9 +82,9 @@ function normalizeSlug(name) {
 
 // כאן אתה מגדיר כותרות ותיאורים
 const projectMeta = {
-  "demon-stration": {
-    title: "Demon Stration",
-    description: "An expressive visual narrative balancing provocation with theatrical composition."
+  "unusuall-usual": {
+    title: "uNuSuAll usual",
+    description: "A study of ordinary places made strange through angle, rhythm, and timing."
   },
   "window-to-redemption": {
     title: "Window to Redemption",
@@ -94,9 +94,9 @@ const projectMeta = {
     title: "OHHHHH YOUR GOD",
     description: "A loud visual collision of fear, irony, and reverence."
   },
-  "unusuall-usual": {
-    title: "uNuSuAll usual",
-    description: "A study of ordinary places made strange through angle, rhythm, and timing."
+   "demon-stration": {
+    title: "Demon Stration",
+    description: "An expressive visual narrative balancing provocation with theatrical composition."
   },
   "windows-eyes-of-the-modern-soul": {
     title: "Windows – Eyes of the Modern Soul",
