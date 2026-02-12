@@ -31,22 +31,56 @@ document.addEventListener("DOMContentLoaded", () => {
     media.alt = project.title;
     media.setAttribute("aria-label", project.title);
 
-    // Prevent layout shift (adjust ratio if needed)
     media.width = 1200;
     media.height = 800;
 
-    // Loading strategy
     media.loading = index === 0 ? "eager" : "lazy";
 
-    // Source
     if (Array.isArray(project.images) && project.images.length > 0) {
       media.src = `${BASE_PATH}${project.slug}/${project.images[0]}`;
     } else {
       media.classList.add("placeholder");
     }
 
-    // Fallback on error
-   media.onerror = () => {
-  media.classList.add("placeholder");
-  media.removeAttribute("src");
-};
+    media.onerror = () => {
+      media.classList.add("placeholder");
+      media.removeAttribute("src");
+    };
+
+    // --- Text block ---
+    const text = document.createElement("div");
+    text.className = "project-text";
+
+    const h2 = document.createElement("h2");
+    h2.textContent = project.title;
+
+    const p = document.createElement("p");
+    p.textContent = project.description || "";
+
+    text.appendChild(h2);
+    text.appendChild(p);
+
+    // --- Link wrapper ---
+    const link = document.createElement("a");
+    link.href = `projects/${project.slug}/`;
+    link.setAttribute("aria-label", `Open project ${project.title}`);
+    link.appendChild(media);
+
+    if (index % 2 === 0) {
+      grid.appendChild(link);
+      grid.appendChild(text);
+    } else {
+      grid.appendChild(text);
+      grid.appendChild(link);
+    }
+
+    section.appendChild(grid);
+    listEl.appendChild(section);
+
+    if (index < manifest.length - 1) {
+      const sep = document.createElement("div");
+      sep.className = "separator";
+      listEl.appendChild(sep);
+    }
+  });
+});
