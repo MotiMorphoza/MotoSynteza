@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
     timer = setTimeout(() => {
       change();
       if (running) loop();
-    }, 2500);
+    }, 3333);
   }
 
   slideA.addEventListener("mouseenter", stop);
