@@ -29,6 +29,14 @@ function copyWithHash(filePath) {
   return path.join(path.dirname(filePath), newName).replace(/\\/g, '/');
 }
 
+// כתיבת manifest
+fs.mkdirSync(path.join(OUT, 'js'), { recursive: true });
+fs.writeFileSync(
+  path.join(OUT, 'js/image-manifest.js'),
+  `window.__MANIFEST__ = ${JSON.stringify(manifest, null, 2)};`
+);
+
+
 // העתקת תיקיות
 function copyFolder(src, dest) {
   if (!fs.existsSync(src)) return;
@@ -71,26 +79,34 @@ function getImages(folderPath) {
     .sort();
 }
 
-// metadata לפרויקטים
+// פונקציה לנרמול שם תיקייה ל-slug נקי
+function normalizeSlug(name) {
+  return name
+    .toLowerCase()
+    .replace(/[_\s]+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+}
+
+// כאן אתה מגדיר כותרות ותיאורים
 const projectMeta = {
-  "demon_stration": {
+  "demon-stration": {
     title: "Demon Stration",
     description: "An expressive visual narrative balancing provocation with theatrical composition."
   },
-  "window_to_redemption": {
+  "window-to-redemption": {
     title: "Window to Redemption",
     description: "A stark, cinematic glimpse into moments where darkness breaks and a new path appears."
   },
-  "ohhhhh_your_god": {
+  "ohhhhh-your-god": {
     title: "OHHHHH YOUR GOD",
     description: "A loud visual collision of fear, irony, and reverence."
   },
-  "unusuall_usual": {
+  "unusuall-usual": {
     title: "uNuSuAll usual",
     description: "A study of ordinary places made strange through angle, rhythm, and timing."
   },
-  "windows_eyes_of_the_modern_soul": {
-    title: "Windows – Eyes of the Modern Soul",
+  "windows-eyes-of-the-modern-soul": {
+    title: "Windows – The Eyes of the Modern Soul",
     description: "Reflections of contemporary life framed through glass."
   }
 };
@@ -101,21 +117,18 @@ const manifest = {
   projects: fs.existsSync('images/projects')
     ? fs.readdirSync('images/projects')
         .filter(f => fs.statSync(path.join('images/projects', f)).isDirectory())
-        .map(folder => ({
-          slug: folder,
-          title: projectMeta[folder]?.title || folder,
-          description: projectMeta[folder]?.description || "",
-          images: getImages(path.join('images/projects', folder))
-        }))
+        .map(folder => {
+          const slug = normalizeSlug(folder);
+          return {
+            slug: folder, // נשארת תיקייה אמיתית
+            key: slug,    // slug מנורמל
+            title: projectMeta[slug]?.title || folder,
+            description: projectMeta[slug]?.description || "",
+            images: getImages(path.join('images/projects', folder))
+          };
+        })
     : []
 };
-
-// כתיבת manifest
-fs.mkdirSync(path.join(OUT, 'js'), { recursive: true });
-fs.writeFileSync(
-  path.join(OUT, 'js/image-manifest.js'),
-  `window.__MANIFEST__ = ${JSON.stringify(manifest, null, 2)};`
-);
 
 // ---------- HTML ----------
 fs.readdirSync('.')
