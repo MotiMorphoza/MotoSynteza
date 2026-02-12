@@ -39,8 +39,8 @@ window.__MANIFEST__ = {
     },
     {
       "slug": "unusuall_usual",
-      "title": "unusuall_usual",
-      "description": "",
+      "title": "uNuSuAll usual",
+      "description": "A study of ordinary places made strange through angle, rhythm, and timing.",
       "images": [
         "cover.jpg"
       ]
