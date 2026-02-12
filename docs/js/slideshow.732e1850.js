@@ -73,8 +73,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function stop() {
   running = false;
-  if (timer) clearTimeout(timer);
+  if (timer) {
+    clearTimeout(timer);
+    timer = null;
+  }
 }
+
 
   viewport.addEventListener("click", () => {
     stop();
