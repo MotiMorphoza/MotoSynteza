@@ -20,26 +20,8 @@ window.__MANIFEST__ = {
     "slide9.jpg"
   ],
   "projects": [
-  {
-      "slug": "unusuall-usual",
-      "key": "unusuall-usual",
-      "title": "uNuSuAll usual",
-      "description": "A study of ordinary places made strange through angle, rhythm, and timing.",
-      "images": [
-        "cover.jpg"
-      ]
-    },
     {
-      "slug": "ohhhhh-your-god",
-      "key": "ohhhhh-your-god",
-      "title": "OHHHHH YOUR GOD",
-      "description": "A loud visual collision of fear, irony, and reverence.",
-      "images": [
-        "cover.jpg"
-      ]
-    },
-    {
-      "slug": "demon-Stration",
+      "slug": "demon_Stration",
       "key": "demon-stration",
       "title": "Demon Stration",
       "description": "An expressive visual narrative balancing provocation with theatrical composition.",
@@ -48,7 +30,25 @@ window.__MANIFEST__ = {
       ]
     },
     {
-      "slug": "window-to-redemption",
+      "slug": "ohhhhh_your_god",
+      "key": "ohhhhh-your-god",
+      "title": "OHHHHH YOUR GOD",
+      "description": "A loud visual collision of fear, irony, and reverence.",
+      "images": [
+        "cover.jpg"
+      ]
+    },
+    {
+      "slug": "unusuall_usual",
+      "key": "unusuall-usual",
+      "title": "uNuSuAll usual",
+      "description": "A study of ordinary places made strange through angle, rhythm, and timing.",
+      "images": [
+        "cover.jpg"
+      ]
+    },
+    {
+      "slug": "window_to_redemption",
       "key": "window-to-redemption",
       "title": "Window to Redemption",
       "description": "A stark, cinematic glimpse into moments where darkness breaks and a new path appears.",
@@ -57,7 +57,7 @@ window.__MANIFEST__ = {
       ]
     },
     {
-      "slug": "windows-eyes-of-the-modern-soul",
+      "slug": "windows_eyes_of_the_modern_soul",
       "key": "windows-eyes-of-the-modern-soul",
       "title": "Windows – Eyes of the Modern Soul",
       "description": "Reflections of contemporary life framed through glass.",
