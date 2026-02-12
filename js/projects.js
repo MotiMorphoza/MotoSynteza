@@ -11,7 +11,7 @@
     'Window to redemption': 'A stark, cinematic glimpse into moments where darkness breaks and a new path appears.',
     'OHHHHH YOUR GOD': 'A loud visual collision of fear, irony, and reverence, framed through raw urban symbolism.',
     'uNuSuAll usual': 'A study of ordinary places made strange through angle, rhythm, and timing.',
-    'Windows - The eyes of the modern soul': 'An observational series where glass and reflection become portraits of contemporary life.',
+    'Windows - Eyes of the modern soul': 'An observational series where glass and reflection become portraits of contemporary life.',
     'Demon Stration': 'An expressive visual narrative balancing provocation with theatrical composition.'
   };
 
