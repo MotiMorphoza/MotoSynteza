@@ -89,7 +89,7 @@ function normalizeSlug(name) {
 
 // כאן אתה מגדיר כותרות ותיאורים
 const projectMeta = {
-  "demon_stration": {
+  "demon-stration": {
     title: "Demon Stration",
     description: "An expressive visual narrative balancing provocation with theatrical composition."
   },
