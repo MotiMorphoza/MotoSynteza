@@ -32,7 +32,7 @@ body {
   min-height: 100dvh;
   background: #000;
   overflow: hidden;
-  padding: 4rem 2rem; /* רווח עליון ותחתון */
+  padding: 4rem 2rem; /* ×¨×•×•×— ×¢×œ×™×•×Ÿ ×•×ª×—×ª×•×Ÿ */
   box-sizing: border-box;
 }
 
@@ -42,7 +42,7 @@ body {
   margin: auto;
   background: #000;
   max-width: 100%;
-  max-height: calc(100% - 8rem); /* מתאים לרווחים */
+  max-height: calc(100% - 8rem); /* ×ž×ª××™× ×œ×¨×•×•×—×™× */
   width: auto;
   height: auto;
   object-fit: contain;
@@ -59,7 +59,7 @@ body {
   z-index: 2;
 }
 
-/* מסגרת hover */
+/* ×ž×¡×’×¨×ª hover */
 .slide:hover {
   outline: 2px solid #fff;
   outline-offset: 4px;
@@ -78,22 +78,23 @@ body {
   overflow: hidden;
 }
 
-/* הסלייד כרקע מלא */
+/* ×”×¡×œ×™×™×“ ×›×¨×§×¢ ×ž×œ× */
 .landing .slide-viewport {
   position: absolute;
   inset: 0;
   z-index: 1;
 }
 
-/* שכבת כהות */
+/* ×©×›×‘×ª ×›×”×•×ª */
 .landing-overlay {
   position: absolute;
   inset: 0;
   background: transparent;
   z-index: 2;
+  pointer-events: none;
 }
 
-/* טקסט במרכז מוחלט */
+/* ×˜×§×¡×˜ ×‘×ž×¨×›×– ×ž×•×—×œ×˜ */
 .landing-content {
   position: absolute;
   inset: 0;
@@ -107,10 +108,10 @@ body {
   text-align: center;
   gap: 0.8rem;
   padding: 1rem;
-  transform: translateY(21vh); /* מזיז את כל הבלוק למטה */
+  transform: translateY(21vh); /* ×ž×–×™×– ××ª ×›×œ ×”×‘×œ×•×§ ×œ×ž×˜×” */
 }
 
-/* רקע רנדומלי */
+/* ×¨×§×¢ ×¨× ×“×•×ž×œ×™ */
 .landing-bg {
   position: absolute;
   inset: 0;
@@ -120,7 +121,7 @@ body {
   z-index: 1;
 }
 
-/* טקסט עם קונטור כהה */
+/* ×˜×§×¡×˜ ×¢× ×§×•× ×˜×•×¨ ×›×”×” */
 .landing-content h1,
 .landing-content p {
   text-shadow:
@@ -140,7 +141,7 @@ body {
 .landing-content p {
   font-size: 1.7rem;
   opacity: 0.9;
-  margin-top: 0.3rem; /* מרווח קטן יותר */
+  margin-top: 0.3rem; /* ×ž×¨×•×•×— ×§×˜×Ÿ ×™×•×ª×¨ */
 }
 
 /* Shell pages */
@@ -189,24 +190,24 @@ body {
 }
 
 .tagline {
-  margin-top: 0.4rem; /* קרוב יותר לכותרת */
+  margin-top: 0.4rem; /* ×§×¨×•×‘ ×™×•×ª×¨ ×œ×›×•×ª×¨×ª */
   font-size: 1rem;
   opacity: 0.85;
 }
 
 .menu {
-  list-style: none; /* בלי נקודות */
+  list-style: none; /* ×‘×œ×™ × ×§×•×“×•×ª */
   padding: 0;
   margin: 3rem 0;
   display: flex;
   flex-direction: column;
-  gap: 1.1rem; /* רווח בין פריטים */
+  gap: 1.1rem; /* ×¨×•×•×— ×‘×™×Ÿ ×¤×¨×™×˜×™× */
 }
 
 .menu a {
   color: #fff;
   text-decoration: none;
-  font-size: 1.5rem; /* פונט גדול יותר */
+  font-size: 1.5rem; /* ×¤×•× ×˜ ×’×“×•×œ ×™×•×ª×¨ */
   letter-spacing: 0.03em;
   transition: opacity 0.2s ease;
 }
@@ -260,7 +261,7 @@ body {
 
 .social {
   margin-top: auto;
-  margin-bottom: 2.5rem; /* רווח מהתחתית */
+  margin-bottom: 2.5rem; /* ×¨×•×•×— ×ž×”×ª×—×ª×™×ª */
   list-style: none;
   padding: 0;
   display: flex;
@@ -278,7 +279,7 @@ body {
 }
 
 .social img {
-  width: 27px; /* גודל האייקונים */
+  width: 27px; /* ×’×•×“×œ ×”××™×™×§×•× ×™× */
   height: 27px;
   object-fit: contain;
 }
@@ -349,7 +350,7 @@ body {
   line-height: 1.6;
 }
 
-/* קו הפרדה אנכי */
+/* ×§×• ×”×¤×¨×“×” ×× ×›×™ */
 .separator {
   display: flex;
   justify-content: center;
@@ -364,7 +365,7 @@ body {
   margin: 6px 0;
 }
 
-/* ===== ABOUT – Vertical Layout Only ===== */
+/* ===== ABOUT â€“ Vertical Layout Only ===== */
 
 .about-pane .about-grid {
   display: flex;
@@ -408,7 +409,7 @@ body {
     display: block;
   }
 
-  /* הכרטיס עצמו */
+  /* ×”×›×¨×˜×™×¡ ×¢×¦×ž×• */
   .project-item {
     background: #111;
     border-radius: 12px;
@@ -439,7 +440,7 @@ body {
     line-height: 1.5;
   }
 
-  /* מסתיר את קו ההפרדה במובייל */
+  /* ×ž×¡×ª×™×¨ ××ª ×§×• ×”×”×¤×¨×“×” ×‘×ž×•×‘×™×™×œ */
   .separator {
     display: none;
   }
