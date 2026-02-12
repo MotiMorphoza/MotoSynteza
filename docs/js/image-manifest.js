@@ -35,13 +35,13 @@ window.__MANIFEST__ = {
       ]
     },
     {
-      "slug": "windows_eyes_of_the_modern_soul",
+      "slug": "window_to_redemption",
       "images": [
         "cover.jpg"
       ]
     },
     {
-      "slug": "window_to_redemption",
+      "slug": "windows_eyes_of_the_modern_soul",
       "images": [
         "cover.jpg"
       ]
