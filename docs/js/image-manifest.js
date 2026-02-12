@@ -21,7 +21,7 @@ window.__MANIFEST__ = {
   ],
   "projects": [
     {
-      "slug": "demon_stration",
+      "slug": "demon_Stration",
       "key": "demon-stration",
       "title": "Demon Stration",
       "description": "An expressive visual narrative balancing provocation with theatrical composition.",
@@ -48,19 +48,19 @@ window.__MANIFEST__ = {
       ]
     },
     {
-      "slug": "windows_eyes_of_the_modern_soul",
-      "key": "windows-eyes-of-the-modern-soul",
-      "title": "Windows – Eyes of the Modern Soul",
-      "description": "Reflections of contemporary life framed through glass.",
+      "slug": "window_to_redemption",
+      "key": "window-to-redemption",
+      "title": "Window to Redemption",
+      "description": "A stark, cinematic glimpse into moments where darkness breaks and a new path appears.",
       "images": [
         "cover.jpg"
       ]
     },
     {
-      "slug": "window_to_redemption",
-      "key": "window-to-redemption",
-      "title": "Window to Redemption",
-      "description": "A stark, cinematic glimpse into moments where darkness breaks and a new path appears.",
+      "slug": "windows_eyes_of_the_modern_soul",
+      "key": "windows-eyes-of-the-modern-soul",
+      "title": "Windows – Eyes of the Modern Soul",
+      "description": "Reflections of contemporary life framed through glass.",
       "images": [
         "cover.jpg"
       ]
