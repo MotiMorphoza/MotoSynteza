@@ -21,7 +21,7 @@ window.__MANIFEST__ = {
   ],
   "projects": [
     {
-      "slug": "demon_Stration",
+      "slug": "demon-Stration",
       "key": "demon-stration",
       "title": "Demon Stration",
       "description": "An expressive visual narrative balancing provocation with theatrical composition.",
@@ -30,7 +30,7 @@ window.__MANIFEST__ = {
       ]
     },
     {
-      "slug": "ohhhhh_your_god",
+      "slug": "ohhhhh-your-god",
       "key": "ohhhhh-your-god",
       "title": "OHHHHH YOUR GOD",
       "description": "A loud visual collision of fear, irony, and reverence.",
@@ -39,7 +39,7 @@ window.__MANIFEST__ = {
       ]
     },
     {
-      "slug": "unusuall_usual",
+      "slug": "unusuall-usual",
       "key": "unusuall-usual",
       "title": "uNuSuAll usual",
       "description": "A study of ordinary places made strange through angle, rhythm, and timing.",
@@ -48,7 +48,7 @@ window.__MANIFEST__ = {
       ]
     },
     {
-      "slug": "window_to_redemption",
+      "slug": "window-to-redemption",
       "key": "window-to-redemption",
       "title": "Window to Redemption",
       "description": "A stark, cinematic glimpse into moments where darkness breaks and a new path appears.",
@@ -57,7 +57,7 @@ window.__MANIFEST__ = {
       ]
     },
     {
-      "slug": "windows_eyes_of_the_modern_soul",
+      "slug": "windows-eyes-of-the-modern-soul",
       "key": "windows-eyes-of-the-modern-soul",
       "title": "Windows – Eyes of the Modern Soul",
       "description": "Reflections of contemporary life framed through glass.",
