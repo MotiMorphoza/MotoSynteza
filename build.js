@@ -16,6 +16,18 @@ function hashFile(filePath) {
   return crypto.createHash("md5").update(content).digest("hex").slice(0, 8);
 }
 
+function validateJS(filePath) {
+  try {
+    const code = fs.readFileSync(filePath, "utf8");
+    new Function(code);
+  } catch (err) {
+    console.error(`\nSyntax error in: ${filePath}`);
+    console.error(err.message);
+    process.exit(1);
+  }
+}
+
+
 function copyWithHash(filePath) {
   const hash = hashFile(filePath);
   const ext = path.extname(filePath);
@@ -56,14 +68,20 @@ assetFolders.forEach((folder) => {
     .filter((f) => f.endsWith(".css") || f.endsWith(".js"))
     .forEach((file) => {
       const fullPath = path.join(folder, file);
+
+      if (file.endsWith(".js")) {
+        validateJS(fullPath);
+      }
+
       hashedMap[fullPath] = copyWithHash(fullPath);
     });
 });
 
+
 // העתקת images
 copyFolder("images", path.join(OUT, "images"));
 
-// ---------- IMAGE MANIFEST ----------
+// ----------- IMAGE MANIFEST -----------
 function getImages(folderPath) {
   if (!fs.existsSync(folderPath)) return [];
   return fs
