@@ -85,7 +85,7 @@ const projectMeta = {
     title: "OHHHHH YOUR GOD",
     description: "A loud visual collision of fear, irony, and reverence."
   },
-  "unusual_usual": {
+  "unusuall_usual": {
     title: "uNuSuAll usual",
     description: "A study of ordinary places made strange through angle, rhythm, and timing."
   },
