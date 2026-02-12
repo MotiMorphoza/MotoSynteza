@@ -31,9 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
     media.alt = project.title;
     media.setAttribute("aria-label", project.title);
 
-    media.width = 1200;
-    media.height = 800;
-
     media.loading = index === 0 ? "eager" : "lazy";
 
     if (Array.isArray(project.images) && project.images.length > 0) {

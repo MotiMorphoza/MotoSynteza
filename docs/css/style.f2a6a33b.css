@@ -304,12 +304,14 @@ body {
 }
 
 .project-media {
-  width: 100%;
-  height: auto;
-  max-height: 420px;
   display: block;
+  max-width: 100%;
+  max-height: 420px;   /* הגובה הקבוע שאתה רוצה */
+  width: auto;
+  height: auto;
   object-fit: contain;
 }
+
 
 .project-media.placeholder {
   background: linear-gradient(135deg, #232323, #111111);
@@ -351,8 +353,6 @@ body {
 .project-media {
   width: 100%;
   height: auto;
-  aspect-ratio: 3 / 2;
-  object-fit: cover;
 }
 
 
