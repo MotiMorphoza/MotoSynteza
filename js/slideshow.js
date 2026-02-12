@@ -10,9 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const slideA = document.createElement("img");
   const slideB = document.createElement("img");
-  viewport.addEventListener("mouseenter", stop);
-  viewport.addEventListener("mouseleave", start);
-
 
   slideA.className = "slide active";
   slideB.className = "slide";
@@ -52,6 +49,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (running) loop();
     }, 2500);
   }
+
+  viewport.addEventListener("mouseenter", stop);
+  viewport.addEventListener("mouseleave", start);
 
   function start() {
   if (running) return;
