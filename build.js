@@ -83,22 +83,27 @@ function normalizeSlug(name) {
 // כאן אתה מגדיר כותרות ותיאורים
 const projectMeta = {
   "unusuall-usual": {
+order: 1,
     title: "uNuSuAll usual",
     description: "A study of ordinary places made strange through angle, rhythm, and timing."
   },
   "window-to-redemption": {
+order: 2,
     title: "Window to Redemption",
     description: "A stark, cinematic glimpse into moments where darkness breaks and a new path appears."
   },
   "ohhhhh-your-god": {
+order: 3,
     title: "OHHHHH YOUR GOD",
     description: "A loud visual collision of fear, irony, and reverence."
   },
    "demon-stration": {
+order: 4,
     title: "Demon Stration",
     description: "An expressive visual narrative balancing provocation with theatrical composition."
   },
   "windows-eyes-of-the-modern-soul": {
+order: 5,
     title: "Windows – Eyes of the Modern Soul",
     description: "Reflections of contemporary life framed through glass."
   }
@@ -109,19 +114,22 @@ const manifest = {
   landing: getImages('images/landing'),
   main: getImages('images/main'),
   projects: fs.existsSync('images/projects')
-    ? fs.readdirSync('images/projects')
-        .filter(f => fs.statSync(path.join('images/projects', f)).isDirectory())
-        .map(folder => {
-          const slug = normalizeSlug(folder);
-          return {
-            slug: folder, // נשארת תיקייה אמיתית
-            key: slug,    // slug מנורמל
-            title: projectMeta[slug]?.title || folder,
-            description: projectMeta[slug]?.description || "",
-            images: getImages(path.join('images/projects', folder))
-          };
-        })
-    : []
+  ? fs.readdirSync('images/projects')
+      .filter(f => fs.statSync(path.join('images/projects', f)).isDirectory())
+      .map(folder => {
+        const slug = normalizeSlug(folder);
+        return {
+          slug: folder,
+          key: slug,
+          order: projectMeta[slug]?.order ?? 999,
+          title: projectMeta[slug]?.title || folder,
+          description: projectMeta[slug]?.description || "",
+          images: getImages(path.join('images/projects', folder))
+        };
+      })
+      .sort((a, b) => a.order - b.order)
+  : []
+
 };
 
 // כתיבת manifest
