@@ -26,8 +26,13 @@ document.addEventListener("DOMContentLoaded", () => {
   current.src = `${path}/${manifest[0]}`;
 
   function change() {
-    index = (index + 1) % manifest.length;
-    next.src = `${path}/${manifest[index]}`;
+  index = (index + 1) % manifest.length;
+
+  const newSrc = `${path}/${manifest[index]}`;
+  const img = new Image();
+
+  img.onload = () => {
+    next.src = newSrc;
 
     current.classList.remove("active");
     next.classList.add("active");
@@ -35,7 +40,10 @@ document.addEventListener("DOMContentLoaded", () => {
     [current, next] = [next, current];
 
     prefetchNext();
-  }
+  };
+
+  img.src = newSrc;
+}
 
   function prefetchNext() {
     const nextIndex = (index + 1) % manifest.length;
@@ -61,15 +69,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (running) return;
   running = true;
   loop();
-console.log("START");
-
 }
 
 function stop() {
   running = false;
   if (timer) clearTimeout(timer);
-console.log("STOP");
-
 }
 
   viewport.addEventListener("click", () => {
