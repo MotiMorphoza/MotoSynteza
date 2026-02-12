@@ -3,7 +3,7 @@
     { title: 'Window to redemption', folder: 'window_to_redemption' },
     { title: 'OHHHHH YOUR GOD', folder: 'ohhhhh_your_god' },
     { title: 'uNuSuAll usual', folder: 'unusuall_usual' },
-    { title: 'Windows - The eyes of the modern soul', folder: 'windows_eyes_of_the_modern_soul' },
+    { title: 'Windows - Eyes of the modern soul', folder: 'windows_eyes_of_the_modern_soul' },
     { title: 'Demon Stration', folder: 'demon_stration' }
   ];
 
