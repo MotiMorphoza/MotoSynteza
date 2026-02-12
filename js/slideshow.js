@@ -61,11 +61,15 @@ document.addEventListener("DOMContentLoaded", () => {
   if (running) return;
   running = true;
   loop();
+console.log("START");
+
 }
 
 function stop() {
   running = false;
   if (timer) clearTimeout(timer);
+console.log("STOP");
+
 }
 
   viewport.addEventListener("click", () => {
