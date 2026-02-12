@@ -350,13 +350,8 @@ body {
   margin: 6px 0;
 }
 
-.project-media {
-  width: 100%;
-  height: auto;
-}
 
-
-/* ===== ABOUT â€“ Vertical Layout Only ===== */
+/* ===== ABOUT Vertical Layout Only ===== */
 
 .about-pane .about-grid {
   display: flex;
