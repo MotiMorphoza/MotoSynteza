@@ -51,7 +51,7 @@ window.__MANIFEST__ = {
       ]
     },
     {
-      "slug": "demon_stration",
+      "slug": "demon_Stration",
       "key": "demon-stration",
       "order": 4,
       "title": "Demon Stration",
