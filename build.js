@@ -96,8 +96,10 @@ fs.readdirSync('.')
   .forEach(file => {
     let html = fs.readFileSync(file, 'utf8');
 
-    Object.keys(hashedMap).forEach(original => {
-      html = html.replaceAll(original, hashedMap[original]);
+    Object.entries(hashedMap).forEach(([original, hashed]) => {
+      const originalFile = path.basename(original);
+      const hashedFile = path.basename(hashed);
+      html = html.replaceAll(originalFile, hashedFile);
     });
 
     fs.writeFileSync(path.join(OUT, file), html);
