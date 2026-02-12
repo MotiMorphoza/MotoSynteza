@@ -17,12 +17,16 @@ window.__MANIFEST__ = {
   "projects": [
     {
       "slug": "demon_Stration",
+      "title": "demon_Stration",
+      "description": "",
       "images": [
         "cover.jpg"
       ]
     },
     {
       "slug": "ohhhhh_your_god",
+      "title": "ohhhhh_your_god",
+      "description": "",
       "images": [
         "cover.jpg",
         "oyg_00.jpg"
@@ -30,18 +34,24 @@ window.__MANIFEST__ = {
     },
     {
       "slug": "unusuall_usual",
+      "title": "unusuall_usual",
+      "description": "",
       "images": [
         "cover.jpg"
       ]
     },
     {
       "slug": "window_to_redemption",
+      "title": "window_to_redemption",
+      "description": "",
       "images": [
         "cover.jpg"
       ]
     },
     {
       "slug": "windows_eyes_of_the_modern_soul",
+      "title": "windows_eyes_of_the_modern_soul",
+      "description": "",
       "images": [
         "cover.jpg"
       ]
