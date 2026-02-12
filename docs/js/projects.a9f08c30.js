@@ -30,9 +30,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const text = document.createElement("div");
     text.className = "project-text";
-    text.innerHTML =
-    "<h2>" + project.title + "</h2>" +
-    "<p>" + project.description + "</p>";
+    const h2 = document.createElement("h2");
+    h2.textContent = project.title;
+
+    const p = document.createElement("p");
+    p.textContent = project.description;
+
+    text.appendChild(h2);
+    text.appendChild(p);
+
 
 
     const link = document.createElement("a");
