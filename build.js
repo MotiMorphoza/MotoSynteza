@@ -1,191 +1,240 @@
+#!/usr/bin/env node
+
+/**
+ * SUPER BUILD v3
+ * Deterministic, Atomic, Production-Grade
+ */
+
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 
-const OUT = "docs";
+const ROOT = process.cwd();
+const OUTPUT_DIR = path.join(ROOT, "docs");
+const TEMP_DIR = path.join(ROOT, ".build-temp");
 
-// ניקוי
-if (fs.existsSync(OUT)) {
-  fs.rmSync(OUT, { recursive: true, force: true });
+const EXCLUDED_DIRS = ["node_modules", "docs", ".git"];
+const HASH_LENGTH = 12;
+
+let stats = {
+  hashedFiles: 0,
+  htmlUpdated: 0,
+  warnings: 0,
+  startTime: Date.now(),
+};
+
+function fail(message) {
+  console.error("BUILD FAILED:", message);
+  process.exit(1);
 }
-fs.mkdirSync(OUT);
 
-// HASH
-function hashFile(filePath) {
-  const content = fs.readFileSync(filePath);
-  return crypto.createHash("md5").update(content).digest("hex").slice(0, 8);
+function hashContent(buffer) {
+  return crypto.createHash("sha256").update(buffer).digest("hex").slice(0, HASH_LENGTH);
 }
 
-function validateJS(filePath) {
-  try {
-    const code = fs.readFileSync(filePath, "utf8");
-    new Function(code);
-  } catch (err) {
-    console.error(`\nSyntax error in: ${filePath}`);
-    console.error(err.message);
-    process.exit(1);
+function isExcluded(p) {
+  return EXCLUDED_DIRS.some(dir => p.includes(dir)) || path.basename(p).startsWith(".");
+}
+
+function ensureDir(dir) {
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+}
+
+function cleanDir(dir) {
+  if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
+}
+
+function copyFile(src, dest) {
+  ensureDir(path.dirname(dest));
+  fs.copyFileSync(src, dest);
+}
+
+function recursiveFiles(dir) {
+  let results = [];
+  for (const entry of fs.readdirSync(dir)) {
+    const full = path.join(dir, entry);
+    if (isExcluded(full)) continue;
+    const stat = fs.statSync(full);
+    if (stat.isDirectory()) {
+      results = results.concat(recursiveFiles(full));
+    } else {
+      results.push(full);
+    }
+  }
+  return results.sort(); // deterministic
+}
+
+function hashAssets(baseDir, exts) {
+  const files = recursiveFiles(baseDir).filter(f => exts.includes(path.extname(f)));
+  const map = {};
+  for (const file of files) {
+    const content = fs.readFileSync(file);
+    const hash = hashContent(content);
+    const dir = path.dirname(file);
+    const ext = path.extname(file);
+    const name = path.basename(file, ext);
+    const hashedName = `${name}.${hash}${ext}`;
+    const rel = path.relative(ROOT, file);
+    const newRel = path.join(path.dirname(rel), hashedName);
+    map[rel.replace(/\\/g, "/")] = newRel.replace(/\\/g, "/");
+    stats.hashedFiles++;
+  }
+  return map;
+}
+
+function applyHashing(map) {
+  for (const [original, hashed] of Object.entries(map)) {
+    const src = path.join(ROOT, original);
+    const dest = path.join(TEMP_DIR, hashed);
+    copyFile(src, dest);
   }
 }
 
-
-function copyWithHash(filePath) {
-  const hash = hashFile(filePath);
-  const ext = path.extname(filePath);
-  const name = path.basename(filePath, ext);
-  const newName = `${name}.${hash}${ext}`;
-
-  const destDir = path.join(OUT, path.dirname(filePath));
-  fs.mkdirSync(destDir, { recursive: true });
-
-  fs.copyFileSync(filePath, path.join(destDir, newName));
-  return path.join(path.dirname(filePath), newName).replace(/\\/g, "/");
+function generateImageManifest() {
+  const imagesDir = path.join(ROOT, "images");
+  if (!fs.existsSync(imagesDir)) return null;
+  const images = recursiveFiles(imagesDir).map(p =>
+    path.relative(ROOT, p).replace(/\\/g, "/")
+  );
+  const manifest = {
+    landing: images.filter(i => i.includes("landing")),
+    main: images.filter(i => i.includes("main")),
+    all: images
+  };
+  return manifest;
 }
 
-// העתקת תיקיות
-function copyFolder(src, dest) {
-  if (!fs.existsSync(src)) return;
-  fs.mkdirSync(dest, { recursive: true });
-
-  fs.readdirSync(src).forEach((item) => {
-    const s = path.join(src, item);
-    const d = path.join(dest, item);
-    if (fs.statSync(s).isDirectory()) {
-      copyFolder(s, d);
-    } else {
-      fs.copyFileSync(s, d);
-    }
-  });
+function writeManifest(manifest) {
+  const content = `window.__IMAGE_MANIFEST__ = ${JSON.stringify(manifest, null, 2)};`;
+  const hash = hashContent(Buffer.from(content));
+  const fileName = `image-manifest.${hash}.js`;
+  const dest = path.join(TEMP_DIR, fileName);
+  fs.writeFileSync(dest, content);
+  stats.hashedFiles++;
+  return fileName;
 }
 
-// HASH ל CSS ו JS
-const assetFolders = ["css", "js"];
-const hashedMap = {};
-
-assetFolders.forEach((folder) => {
-  if (!fs.existsSync(folder)) return;
-
-  fs.readdirSync(folder)
-    .filter((f) => f.endsWith(".css") || f.endsWith(".js"))
-    .forEach((file) => {
-      const fullPath = path.join(folder, file);
-
-      if (file.endsWith(".js")) {
-        validateJS(fullPath);
+function safeReplaceAssetRefs(html, map) {
+  return html.replace(
+    /(<script[^>]+src="|<link[^>]+href=")([^"]+)"/g,
+    (match, prefix, url) => {
+      if (/^(https?:|\/\/)/.test(url)) return match;
+      const clean = url.replace(/^\//, "");
+      if (map[clean]) {
+        return `${prefix}${map[clean]}"`;
       }
-
-      hashedMap[fullPath] = copyWithHash(fullPath);
-    });
-});
-
-
-// העתקת images
-copyFolder("images", path.join(OUT, "images"));
-
-// ----------- IMAGE MANIFEST -----------
-function getImages(folderPath) {
-  if (!fs.existsSync(folderPath)) return [];
-  return fs
-    .readdirSync(folderPath)
-    .filter((f) => /\.(jpg|jpeg|png|webp)$/i.test(f))
-    .sort();
+      return match;
+    }
+  );
 }
 
-// פונקציה לנרמול שם תיקייה ל-slug נקי
-function normalizeSlug(name) {
-  return name
-    .toLowerCase()
-    .replace(/[_\s]+/g, "-")
-    .replace(/[^a-z0-9-]/g, "");
+function injectHead(html, preloadAssets) {
+  if (!/<meta charset=/.test(html)) {
+    html = html.replace(/<head>/, `<head>\n<meta charset="UTF-8">`);
+  }
+
+  if (!/theme-color/.test(html)) {
+    html = html.replace(/<\/head>/, `<meta name="theme-color" content="#000000">\n</head>`);
+  }
+
+  if (!/Content-Security-Policy/.test(html)) {
+    html = html.replace(
+      /<\/head>/,
+      `<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https:; script-src 'self'; style-src 'self'; font-src 'self' https:; object-src 'none';">\n</head>`
+    );
+  }
+
+  for (const asset of preloadAssets) {
+    if (!html.includes(asset)) {
+      html = html.replace(
+        /<\/head>/,
+        `<link rel="preload" href="${asset}" as="${asset.endsWith(".css") ? "style" : "image"}">\n</head>`
+      );
+    }
+  }
+
+  return html;
 }
 
-// כאן אתה מגדיר כותרות ותיאורים
-const projectMeta = {
-  "unusuall-usual": {
-    order: 1,
-    title: "uNuSuAll usual",
-    description:
-      "A study of ordinary places made strange through angle, rhythm, and timing.",
-  },
-  "window-to-redemption": {
-    order: 2,
-    title: "Window to Redemption",
-    description:
-      "A stark, cinematic glimpse into moments where darkness breaks and a new path appears.",
-  },
-  "ohhhhh-your-god": {
-    order: 3,
-    title: "OHHHHH YOUR GOD",
-    description: "A loud visual collision of fear, irony, and reverence.",
-  },
-  "demon-stration": {
-    order: 4,
-    title: "Demon Stration",
-    description:
-      "An expressive visual narrative balancing provocation with theatrical composition.",
-  },
-  "windows-eyes-of-the-modern-soul": {
-    order: 5,
-    title: "Windows – Eyes of the Modern Soul",
-    description: "Reflections of contemporary life framed through glass.",
-  },
-};
+function addVersionStamp(html) {
+  const version = Date.now().toString();
+  const script = `<script>window.__BUILD_VERSION__="${version}";</script>`;
+  return html.replace(/<\/body>/, `${script}\n</body>`);
+}
 
-const manifest = {
-  landing: getImages("images/landing"),
-  main: getImages("images/main"),
-  projects: fs.existsSync("images/projects")
-    ? fs
-        .readdirSync("images/projects")
-        .filter((f) =>
-          fs.statSync(path.join("images/projects", f)).isDirectory(),
-        )
-        .map((folder) => {
-          const slug = normalizeSlug(folder);
-          return {
-            slug: folder,
-            key: slug,
-            order: projectMeta[slug]?.order ?? 999,
-            title: projectMeta[slug]?.title || folder,
-            description: projectMeta[slug]?.description || "",
-            images: getImages(path.join("images/projects", folder)),
-          };
-        })
-        .sort((a, b) => a.order - b.order)
-    : [],
-};
-
-// כתיבת manifest
-fs.mkdirSync(path.join(OUT, "js"), { recursive: true });
-fs.writeFileSync(
-  path.join(OUT, "js/image-manifest.js"),
-  `window.__MANIFEST__ = ${JSON.stringify(manifest, null, 2)};`,
-);
-
-// ---------- HTML ----------
-fs.readdirSync(".")
-  .filter((f) => f.endsWith(".html"))
-  .forEach((file) => {
+function processHTML(map, manifestFile) {
+  const htmlFiles = recursiveFiles(ROOT).filter(f => f.endsWith(".html"));
+  for (const file of htmlFiles) {
     let html = fs.readFileSync(file, "utf8");
+    html = safeReplaceAssetRefs(html, map);
+    html = safeReplaceAssetRefs(html, { "image-manifest.js": manifestFile });
+    html = injectHead(html, []);
+    html = addVersionStamp(html);
+    const dest = path.join(TEMP_DIR, path.relative(ROOT, file));
+    ensureDir(path.dirname(dest));
+    fs.writeFileSync(dest, html);
+    stats.htmlUpdated++;
+  }
+}
 
-    Object.entries(hashedMap).forEach(([original, hashed]) => {
-  const originalFile = path.basename(original);
-  const hashedFile = path.basename(hashed);
+function atomicReplace() {
+  cleanDir(OUTPUT_DIR);
+  fs.renameSync(TEMP_DIR, OUTPUT_DIR);
+}
 
-  // Replace only inside src=""
-  html = html.replace(
-    new RegExp(`(<script[^>]+src=["'][^"']*)${originalFile}(["'])`, "g"),
-    `$1${hashedFile}$2`
+function copyStatic() {
+  const files = recursiveFiles(ROOT).filter(f =>
+    !f.endsWith(".html") &&
+    !f.endsWith(".js") &&
+    !f.endsWith(".css")
   );
+  for (const file of files) {
+    const rel = path.relative(ROOT, file);
+    const dest = path.join(TEMP_DIR, rel);
+    copyFile(file, dest);
+  }
+}
 
-  // Replace only inside href=""
-  html = html.replace(
-    new RegExp(`(<link[^>]+href=["'][^"']*)${originalFile}(["'])`, "g"),
-    `$1${hashedFile}$2`
-  );
-});
+function logSummary() {
+  const duration = Date.now() - stats.startTime;
+  const size = getDirSize(OUTPUT_DIR);
+  console.log("Files hashed:", stats.hashedFiles);
+  console.log("HTML updated:", stats.htmlUpdated);
+  console.log("Build size:", (size / 1024).toFixed(2), "KB");
+  console.log("Build time:", duration, "ms");
+}
 
+function getDirSize(dir) {
+  let total = 0;
+  const files = recursiveFiles(dir);
+  for (const f of files) total += fs.statSync(f).size;
+  return total;
+}
 
-    fs.writeFileSync(path.join(OUT, file), html);
-  });
+/* ===== MAIN ===== */
 
-console.log("Super Build v2 complete.");
+try {
+  cleanDir(TEMP_DIR);
+  ensureDir(TEMP_DIR);
+
+  const cssMap = hashAssets(path.join(ROOT, "css"), [".css"]);
+  const jsMap = hashAssets(path.join(ROOT, "js"), [".js"]);
+  const assetMap = { ...cssMap, ...jsMap };
+
+  applyHashing(assetMap);
+
+  const manifest = generateImageManifest();
+  let manifestFile = null;
+  if (manifest) {
+    manifestFile = writeManifest(manifest);
+  }
+
+  processHTML(assetMap, manifestFile);
+  copyStatic();
+  atomicReplace();
+  logSummary();
+
+} catch (err) {
+  cleanDir(TEMP_DIR);
+  fail(err.message);
+}
