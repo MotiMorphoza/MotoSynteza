@@ -224,13 +224,6 @@ body {
   padding: clamp(1rem, 3vw, 2.6rem);
 }
 
-.about-grid {
-  display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(260px, 1fr);
-  gap: clamp(1.2rem, 3vw, 2.4rem);
-  align-items: center;
-}
-
 .about-text h1 {
   margin-top: 0;
   font-size: clamp(1.8rem, 3.2vw, 2.6rem);
