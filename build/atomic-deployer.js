@@ -82,9 +82,17 @@ deploy(rootDir) {
       this.rmRecursive(targetPath);
     }
 
-    // Promote temp to docs
-    this.logger.info('Deploying build to docs directory');
-    fs.renameSync(tempPath, targetPath);
+    // Backup current docs if exists
+if (fs.existsSync(targetPath)) {
+  this.logger.info('Backing up current docs directory');
+  this.copyRecursive(targetPath, backupPath);
+  this.rmRecursive(targetPath);
+}
+
+// Promote temp to docs
+this.logger.info('Deploying build to docs directory');
+fs.renameSync(tempPath, targetPath);
+
 
     // Remove backup on success
     if (fs.existsSync(backupPath)) {
