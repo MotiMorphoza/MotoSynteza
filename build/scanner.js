@@ -145,19 +145,25 @@ class Scanner {
   }
 
   getImageFiles(dir) {
-    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
-    
-    if (!fs.existsSync(dir)) {
-      return [];
-    }
-
-    const files = fs.readdirSync(dir);
-    
-    return files
-      .filter(f => imageExtensions.includes(path.extname(f).toLowerCase()))
-      .sort()
-      .map(f => `images/${path.relative(path.join(process.cwd(), 'images'), path.join(dir, f)).replace(/\\/g, '/')}`);
+  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+  
+  if (!fs.existsSync(dir)) {
+    return [];
   }
+
+  const files = fs.readdirSync(dir);
+
+  return files
+    .filter(f => imageExtensions.includes(path.extname(f).toLowerCase()))
+    .sort()
+    .map(f => {
+      const rel = path.relative(
+        path.join(dir, '..', '..'),
+        path.join(dir, f)
+      );
+      return rel.replace(/\\/g, '/');
+    });
+}
 
   scanProjects(projectsDir) {
     const projects = [];
