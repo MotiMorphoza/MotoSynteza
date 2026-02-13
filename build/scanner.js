@@ -65,11 +65,27 @@ class Scanner {
    * Find all HTML files in root
    */
   findHtmlFiles(rootDir) {
-    const files = fs.readdirSync(rootDir);
-    return files
-      .filter(f => f.endsWith('.html'))
-      .sort();
+  const files = fs.readdirSync(rootDir);
+
+  const htmlFiles = [];
+
+  for (const file of files) {
+    if (!file.endsWith('.html')) continue;
+
+    const fullPath = path.join(rootDir, file);
+    const content = fs.readFileSync(fullPath, 'utf8');
+
+    // Only treat as page if it has a <head> tag
+    if (/<head[^>]*>/i.test(content)) {
+      htmlFiles.push(file);
+    } else {
+      this.logger.debug(`Skipping fragment HTML: ${file}`);
+    }
   }
+
+  return htmlFiles.sort();
+}
+
 
   /**
    * Find all fonts in directory tree (limit to 2 for preload)
