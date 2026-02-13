@@ -36,9 +36,10 @@ class AtomicDeployer {
     this.logger.info('Copying source files to temp directory');
 
     // Scan for HTML files in root
-    const rootFiles = fs.readdirSync(rootDir);
-    const htmlFiles = rootFiles.filter(f => f.endsWith('.html') && fs.statSync(path.join(rootDir, f)).isFile());
-    
+    const scanner = require('./scanner');
+const htmlScanner = new scanner(this.logger);
+const htmlFiles = htmlScanner.findHtmlFiles(rootDir);
+
     // Copy HTML files
     for (const htmlFile of htmlFiles) {
       const srcPath = path.join(rootDir, htmlFile);
