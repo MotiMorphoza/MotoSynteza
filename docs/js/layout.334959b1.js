@@ -2,7 +2,7 @@ async function loadSidebar() {
   const placeholder = document.querySelector('[data-sidebar]');
   if (!placeholder) return;
 
-  const response = await fetch('sidebar.html');
+  const response = await fetch('partials/sidebar.html');
   const html = await response.text();
   placeholder.innerHTML = html;
 
