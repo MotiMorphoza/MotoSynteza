@@ -21,11 +21,11 @@ window.__MANIFEST__ = {
   ],
   "projects": [
     {
-      "slug": "demon_stration",
-      "title": "Demon_stration",
+      "slug": "demon_Stration",
+      "title": "Demon_Stration",
       "description": "",
       "images": [
-        "projects/demon_stration/cover.jpg"
+        "projects/demon_Stration/cover.jpg"
       ]
     },
     {
