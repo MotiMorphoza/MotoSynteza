@@ -112,11 +112,11 @@ class HtmlProcessor {
     
     // Check if we have a mapping
     if (renameMap.has(lookupPath)) {
-      const newPath = renameMap.get(lookupPath);
-      // Return as root-relative if original was root-relative
-      return href.startsWith('/') ? `/${newPath}` : newPath;
-    }
-    
+  const newPath = renameMap.get(lookupPath);
+  // Always return relative path (GitHub Pages safe)
+  return newPath;
+}
+
     return href;
   }
 
