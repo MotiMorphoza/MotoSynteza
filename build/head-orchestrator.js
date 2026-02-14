@@ -1,343 +1,162 @@
 // build/head-orchestrator.js
-const fs = require('fs');
-const path = require('path');
 
 /**
- * HeadOrchestrator - Centralized <head> mutation controller
- * 
- * Responsibilities:
- * - Parse <head> block once
- * - Build deterministic internal representation
- * - Generate final <head> with strict ordering
- * - Handle deduplication
- * - Zero external mutations
+ * HeadOrchestrator - Pure <head> controller (NO I/O)
+ * Deterministic | Non-destructive | No filesystem access
  */
 class HeadOrchestrator {
-  constructor({ logger, renameMap, manifestData, version, buildDir, scanner }) {
+  constructor({ logger, renameMap, manifestData, version, assets }) {
     this.logger = logger;
     this.renameMap = renameMap;
     this.manifestData = manifestData;
     this.version = version;
-    this.buildDir = buildDir;
-    this.scanner = scanner;
+    this.assets = assets || {};
   }
 
-  /**
-   * Build complete <head> block for given HTML file
-   * @param {string} html - Full HTML content
-   * @param {string} htmlFile - Filename (e.g., 'index.html')
-   * @param {string} filePath - Full file path
-   * @returns {string} - Updated HTML with rebuilt <head>
-   */
-  buildHead(html, htmlFile, filePath) {
-    // Parse existing <head> block
+  buildHead(html) {
     const headMatch = html.match(/(<head[^>]*>)([\s\S]*?)(<\/head>)/i);
     if (!headMatch) {
-      throw new Error(`No <head> found in ${htmlFile}`);
+      throw new Error('No <head> tag found');
     }
 
-    const [fullHead, openTag, existingContent, closeTag] = headMatch;
+    const [fullHead, openTag, innerContent, closeTag] = headMatch;
 
-    // Build ordered tag list
-    const tags = this.buildOrderedTags(existingContent, htmlFile);
+    const managedTags = this.buildManagedTags(innerContent);
+    const preservedContent = this.removeManagedTags(innerContent);
 
-    // Generate final <head> content with controlled whitespace
-    const newContent = tags.map(tag => `\n  ${tag}`).join('');
+    const newHead =
+      openTag +
+      '\n' +
+      managedTags.map(t => `  ${t}`).join('\n') +
+      (preservedContent.trim() ? '\n' + preservedContent.trim() + '\n' : '\n') +
+      closeTag;
 
-    // Replace <head> block
-    return html.replace(fullHead, `${openTag}${newContent}\n${closeTag}`);
+    return html.replace(fullHead, newHead);
   }
 
-  /**
-   * Build deterministic ordered tag list
-   */
-  buildOrderedTags(existingContent, htmlFile) {
+  buildManagedTags(existingContent) {
     const tags = [];
 
-    // 1. Charset (mandatory, first)
-    if (!this.hasTag(existingContent, 'charset')) {
-      tags.push('<meta charset="UTF-8">');
-    } else {
-      tags.push(this.extractTag(existingContent, 'charset'));
+    // Charset (preserve existing or fallback)
+    const charset = this.extractFirst(existingContent, /<meta[^>]*charset[^>]*>/i);
+    tags.push(charset || '<meta charset="UTF-8" />');
+
+    // Viewport (preserve)
+    const viewport = this.extractFirst(existingContent, /<meta[^>]*name=["']viewport["'][^>]*>/i);
+    if (viewport) tags.push(viewport);
+
+    // Theme color (preserve)
+    const theme = this.extractFirst(existingContent, /<meta[^>]*name=["']theme-color["'][^>]*>/i);
+    if (theme) tags.push(theme);
+
+    // Title (preserve)
+    const title = this.extractFirst(existingContent, /<title>[\s\S]*?<\/title>/i);
+    if (title) tags.push(title);
+
+    // Canonical (preserve only, do not create)
+    const canonical = this.extractFirst(existingContent, /<link[^>]*rel=["']canonical["'][^>]*>/i);
+    if (canonical) tags.push(canonical);
+
+    // Stylesheets (preserve order)
+    tags.push(...this.extractAll(existingContent, /<link[^>]*rel=["']stylesheet["'][^>]*>/gi));
+
+    // Preload CSS (deterministic from renameMap)
+    const cssPreload = this.getCssPreload();
+    if (cssPreload) tags.push(cssPreload);
+
+    // Preload image (deterministic via manifest + renameMap)
+    const imagePreload = this.getImagePreload();
+    if (imagePreload) tags.push(imagePreload);
+
+    // Version script
+    if (this.assets.versionScriptPath) {
+      tags.push(`<script src="${this.assets.versionScriptPath}"></script>`);
     }
 
-    // 2. Viewport (preserve existing or skip)
-    if (this.hasTag(existingContent, 'viewport')) {
-      tags.push(this.extractTag(existingContent, 'viewport'));
-    }
+    // Other scripts (preserve, exclude version script)
+    const scripts = this.extractAll(
+      existingContent,
+      /<script[^>]*src=["'][^"']+["'][^>]*><\/script>/gi
+    ).filter(s => !/build-version\.[a-f0-9]{8}\.js/i.test(s));
 
-    // 3. Theme color
-    if (!this.hasTag(existingContent, 'theme-color')) {
-      tags.push('<meta name="theme-color" content="#111111">');
-    } else {
-      tags.push(this.extractTag(existingContent, 'theme-color'));
-    }
-
-    // 4. Title (preserve existing)
-    if (this.hasTag(existingContent, '<title')) {
-      tags.push(this.extractTag(existingContent, '<title'));
-    }
-
-    // 5. Canonical (preserve existing)
-    if (this.hasTag(existingContent, 'rel="canonical"')) {
-      tags.push(this.extractTag(existingContent, 'rel="canonical"'));
-    }
-
-    // 6. Favicon
-    const faviconPath = path.join(this.buildDir, 'images', 'favicon.ico');
-    if (fs.existsSync(faviconPath)) {
-      if (!this.hasTag(existingContent, 'rel="icon"')) {
-        tags.push('<link rel="icon" href="/images/favicon.ico">');
-      } else {
-        tags.push(this.extractTag(existingContent, 'rel="icon"'));
-      }
-    }
-
-    // 7. Apple touch icon
-    const appleTouchPath = path.join(this.buildDir, 'images', 'apple-touch-icon.png');
-    if (fs.existsSync(appleTouchPath)) {
-      if (!this.hasTag(existingContent, 'apple-touch-icon')) {
-        tags.push('<link rel="apple-touch-icon" href="/images/apple-touch-icon.png">');
-      } else {
-        tags.push(this.extractTag(existingContent, 'apple-touch-icon'));
-      }
-    }
-
-    // 8. Open Graph tags
-    if (!this.hasTag(existingContent, 'og:title')) {
-      tags.push('<meta property="og:title" content="MotoSynteza">');
-    } else {
-      tags.push(this.extractTag(existingContent, 'og:title'));
-    }
-
-    if (!this.hasTag(existingContent, 'og:type')) {
-      tags.push('<meta property="og:type" content="website">');
-    } else {
-      tags.push(this.extractTag(existingContent, 'og:type'));
-    }
-
-    if (!this.hasTag(existingContent, 'og:image')) {
-      if (this.manifestData && this.manifestData.landing && this.manifestData.landing[0]) {
-        tags.push(`<meta property="og:image" content="/${this.manifestData.landing[0]}">`);
-      }
-    } else {
-      tags.push(this.extractTag(existingContent, 'og:image'));
-    }
-
-    // 9. Twitter Card tags
-    if (!this.hasTag(existingContent, 'twitter:card')) {
-      tags.push('<meta name="twitter:card" content="summary_large_image">');
-    } else {
-      tags.push(this.extractTag(existingContent, 'twitter:card'));
-    }
-
-    if (!this.hasTag(existingContent, 'twitter:title')) {
-      tags.push('<meta name="twitter:title" content="MotoSynteza">');
-    } else {
-      tags.push(this.extractTag(existingContent, 'twitter:title'));
-    }
-
-    // 10. Preload tags (deterministic order)
-    tags.push(...this.buildPreloads(htmlFile));
-
-    // 11. Stylesheets (preserve existing, maintain order)
-    const stylesheets = this.extractStylesheets(existingContent);
-    tags.push(...stylesheets);
-
-    // 12. Version script (hashed)
-    const versionScript = this.getVersionScript();
-    if (versionScript) {
-      tags.push(versionScript);
-    }
-
-    // 13. Other scripts (preserve existing, maintain order)
-    const scripts = this.extractScripts(existingContent);
     tags.push(...scripts);
 
-    // 14. CSP (must be last in head for maximum compatibility)
-    if (!this.hasTag(existingContent, 'Content-Security-Policy')) {
-      tags.push(this.generateCspTag());
-    } else {
-      tags.push(this.extractTag(existingContent, 'Content-Security-Policy'));
+    // CSP (preserve existing or inject from assets)
+    const existingCsp = this.extractFirst(
+      existingContent,
+      /<meta[^>]*http-equiv=["']Content-Security-Policy["'][^>]*>/i
+    );
+
+    if (existingCsp) {
+      tags.push(existingCsp);
+    } else if (this.assets.cspPolicy) {
+      tags.push(
+        `<meta http-equiv="Content-Security-Policy" content="${this.assets.cspPolicy}">`
+      );
     }
 
     return tags;
   }
 
-  /**
-   * Build deterministic preload tags
-   */
-  buildPreloads(htmlFile) {
-    const preloads = [];
+  removeManagedTags(content) {
+    const patterns = [
+      /<meta[^>]*charset[^>]*>/gi,
+      /<meta[^>]*name=["']viewport["'][^>]*>/gi,
+      /<meta[^>]*name=["']theme-color["'][^>]*>/gi,
+      /<title>[\s\S]*?<\/title>/gi,
+      /<link[^>]*rel=["']canonical["'][^>]*>/gi,
+      /<link[^>]*rel=["']stylesheet["'][^>]*>/gi,
+      /<link[^>]*rel=["']preload["'][^>]*>/gi,
+      /<script[^>]*src=["'][^"']+["'][^>]*><\/script>/gi,
+      /<meta[^>]*http-equiv=["']Content-Security-Policy["'][^>]*>/gi
+    ];
 
-    // CSS preload (first CSS file from sorted renameMap)
-    const cssPreload = this.getCssPreload();
-    if (cssPreload) {
-      preloads.push(cssPreload);
+    let cleaned = content;
+    for (const pattern of patterns) {
+      cleaned = cleaned.replace(pattern, '');
     }
 
-    // Image preload (page-specific)
-    const imagePreload = this.getImagePreload(htmlFile);
-    if (imagePreload) {
-      preloads.push(imagePreload);
-    }
-
-    // Font preloads (max 2, sorted)
-    const fontPreloads = this.getFontPreloads();
-    preloads.push(...fontPreloads);
-
-    // Sort all preloads by href for determinism
-    return preloads.sort();
+    return cleaned;
   }
 
-  /**
-   * Get CSS preload (deterministic)
-   */
   getCssPreload() {
-    // Sort renameMap entries to ensure deterministic iteration
-    const sortedEntries = Array.from(this.renameMap.entries()).sort((a, b) => {
-      return a[0].localeCompare(b[0]);
-    });
+    const sortedEntries = Array.from(this.renameMap.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]));
 
     for (const [oldPath, newPath] of sortedEntries) {
       if (oldPath.startsWith('css/') && oldPath.endsWith('.css')) {
         return `<link rel="preload" href="${newPath}" as="style">`;
       }
     }
+
     return null;
   }
 
-  /**
-   * Get image preload (page-specific)
-   */
-  getImagePreload(htmlFile) {
+  getImagePreload() {
     if (!this.manifestData) return null;
 
-    if (htmlFile === 'index.html' && this.manifestData.landing && this.manifestData.landing[0]) {
-      return `<link rel="preload" href="${this.manifestData.landing[0]}" as="image">`;
-    }
+    const firstImage =
+      (this.manifestData.landing && this.manifestData.landing[0]) ||
+      (this.manifestData.main && this.manifestData.main[0]);
 
-    if (htmlFile === 'main.html' && this.manifestData.main && this.manifestData.main[0]) {
-      return `<link rel="preload" href="${this.manifestData.main[0]}" as="image">`;
-    }
+    if (!firstImage) return null;
 
-    return null;
+    const resolved = this.renameMap.get(firstImage) || firstImage;
+    return `<link rel="preload" href="${resolved}" as="image">`;
   }
 
-  /**
-   * Get font preloads (max 2, deterministic)
-   */
-  getFontPreloads() {
-    const preloads = [];
-    
-    // Use scanner's deterministic font finder
-    const fontFiles = this.scanner.findFonts(this.buildDir, 2);
-
-    for (const fontPath of fontFiles) {
-      const ext = path.extname(fontPath).substring(1);
-      const relativePath = path.relative(this.buildDir, fontPath).replace(/\\/g, '/');
-      preloads.push(`<link rel="preload" href="${relativePath}" as="font" type="font/${ext}" crossorigin>`);
-    }
-
-    return preloads;
-  }
-
-  /**
-   * Get hashed version script tag
-   */
-  getVersionScript() {
-    const jsDir = path.join(this.buildDir, 'js');
-    if (!fs.existsSync(jsDir)) return null;
-
-    // Sort to ensure deterministic selection
-    const files = fs.readdirSync(jsDir).sort();
-    const versionFile = files.find(f => /^build-version\.[a-f0-9]{8}\.js$/.test(f));
-    
-    if (versionFile) {
-      return `<script src="js/${versionFile}"></script>`;
-    }
-
-    return null;
-  }
-
-  /**
-   * Generate CSP meta tag
-   */
-  generateCspTag() {
-    const policy = [
-      "default-src 'self'",
-      "img-src 'self' https: data:",
-      "script-src 'self' 'unsafe-inline'",
-      "style-src 'self' 'unsafe-inline'",
-      "font-src 'self' https:",
-      "object-src 'none'",
-      "base-uri 'self'",
-      "form-action 'self'"
-    ].join('; ');
-
-    return `<meta http-equiv="Content-Security-Policy" content="${policy}">`;
-  }
-
-  /**
-   * Extract existing stylesheets (preserve order)
-   */
-  extractStylesheets(content) {
-    const stylesheets = [];
-    const linkRegex = /<link\s+[^>]*?rel=["']stylesheet["'][^>]*?>/gi;
-    let match;
-
-    while ((match = linkRegex.exec(content)) !== null) {
-      stylesheets.push(match[0]);
-    }
-
-    return stylesheets;
-  }
-
-  /**
-   * Extract existing scripts (preserve order, exclude version script)
-   */
-  extractScripts(content) {
-    const scripts = [];
-    const scriptRegex = /<script\s+[^>]*?src=["'][^"']+["'][^>]*?>/gi;
-    let match;
-
-    while ((match = scriptRegex.exec(content)) !== null) {
-      // Skip version script (will be re-added in correct position)
-      if (!/build-version\.[a-f0-9]{8}\.js/i.test(match[0])) {
-        scripts.push(match[0]);
-      }
-    }
-
-    return scripts;
-  }
-
-  /**
-   * Check if tag exists (case-insensitive)
-   */
-  hasTag(content, identifier) {
-    const escaped = identifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(escaped, 'i');
-    return regex.test(content);
-  }
-
-  /**
-   * Extract specific tag (first match)
-   */
-  extractTag(content, identifier) {
-    const escaped = identifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    
-    // Handle different tag patterns
-    let regex;
-    if (identifier.includes('=')) {
-      // Attribute-based match (e.g., rel="icon")
-      regex = new RegExp(`<[^>]*?${escaped}[^>]*?>`, 'i');
-    } else {
-      // Content-based match (e.g., charset, viewport)
-      regex = new RegExp(`<[^>]*?${escaped}[^>]*?>`, 'i');
-    }
-
+  extractFirst(content, regex) {
     const match = content.match(regex);
-    return match ? match[0] : '';
+    return match ? match[0] : null;
+  }
+
+  extractAll(content, regex) {
+    const matches = [];
+    let match;
+    while ((match = regex.exec(content)) !== null) {
+      matches.push(match[0]);
+    }
+    return matches;
   }
 }
 

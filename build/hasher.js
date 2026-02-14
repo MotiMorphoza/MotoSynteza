@@ -88,17 +88,34 @@ class Hasher {
    * Hash all CSS and JS files in build directory
    */
   hashAssets(buildDir, scanner) {
-    const cssFiles = scanner.scanDirectory(path.join(buildDir, 'css'), ['.css']);
-    const jsFiles = scanner.scanDirectory(path.join(buildDir, 'js'), ['.js']);
-    
-    const allFiles = [...cssFiles, ...jsFiles].map(f => path.join(process.cwd(), f));
-    
-    for (const file of allFiles) {
-      this.hashAndRename(file, buildDir);
-    }
-    
-    this.logger.updateStats('hashedFiles', allFiles.length);
+  const cssFiles = scanner.scanDirectory(
+    path.join(buildDir, 'css'),
+    ['.css'],
+    [],
+    buildDir
+  );
+
+  const jsFiles = scanner.scanDirectory(
+    path.join(buildDir, 'js'),
+    ['.js'],
+    [],
+    buildDir
+  );
+
+  const allFiles = [];
+
+  for (const f of [...cssFiles, ...jsFiles]) {
+    const fullPath = path.join(buildDir, f);
+    allFiles.push(fullPath);
   }
+
+  for (const file of allFiles) {
+    this.hashAndRename(file, buildDir);
+  }
+
+  this.logger.updateStats('hashedFiles', allFiles.length);
+}
+
 
   /**
    * Get rename mapping

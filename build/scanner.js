@@ -47,8 +47,12 @@ class Scanner {
           extensions.length === 0 ||
           extensions.includes(path.extname(entry.name).toLowerCase())
         ) {
-          const relative = path.relative(rootDir, fullPath).replace(/\\/g, '/');
-          results.push(relative);
+          const relative = path
+  .relative(rootDir, fullPath)
+  .replace(/\\/g, '/');
+
+results.push(relative);
+
         }
       }
     }
