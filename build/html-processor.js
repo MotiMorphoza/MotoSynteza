@@ -188,24 +188,30 @@ class HtmlProcessor {
   }
 
   checkFileExists(href, htmlFilePath, buildDir) {
-    let filePath;
+  let filePath;
 
-    if (href.startsWith('/')) {
-      filePath = path.join(buildDir, href.substring(1));
-    } else {
-      const htmlDir = path.dirname(htmlFilePath);
-      filePath = path.resolve(htmlDir, href);
-    }
-
-    if (!fs.existsSync(filePath)) {
-      throw new Error(
-        `Missing file: ${href} (from ${path.relative(
-          buildDir,
-          htmlFilePath
-        )})`
-      );
-    }
+  if (href.startsWith('/')) {
+    filePath = path.join(buildDir, href.substring(1));
+  } else {
+    const htmlDir = path.dirname(htmlFilePath);
+    filePath = path.resolve(htmlDir, href);
   }
+
+  // If not found, try resolving from build root (for partials)
+  if (!fs.existsSync(filePath)) {
+    const rootAttempt = path.join(buildDir, href);
+    if (fs.existsSync(rootAttempt)) {
+      return;
+    }
+
+    throw new Error(
+      `Missing file: ${href} (from ${path.relative(
+        buildDir,
+        htmlFilePath
+      )})`
+    );
+  }
+}
 
   // ================================
   // HELPERS
