@@ -42,20 +42,20 @@ class CspInjector {
   }
 
   generateCspTag() {
-    // Strict CSP - no unsafe-inline
-    const policy = [
-      "default-src 'self'",
-      "img-src 'self' https:",
-      "script-src 'self'",
-      "style-src 'self'",
-      "font-src 'self' https:",
-      "object-src 'none'",
-      "base-uri 'self'",
-      "form-action 'self'"
-    ].join('; ');
+  // Transitional CSP (allows inline styles/scripts)
+  const policy = [
+    "default-src 'self'",
+    "img-src 'self' https: data:",
+    "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline'",
+    "font-src 'self' https:",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'"
+  ].join('; ');
 
-    return `<meta http-equiv="Content-Security-Policy" content="${policy}">`;
-  }
+  return `<meta http-equiv="Content-Security-Policy" content="${policy}">`;
+}
 }
 
 module.exports = CspInjector;
