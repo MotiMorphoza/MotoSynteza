@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
     text.appendChild(p);
 
     const link = document.createElement("a");
-    link.href = `images/projects/${project.slug}/`;
+    link.href = `projects/${project.slug}/`;
     link.setAttribute("aria-label", `Open project ${project.title}`);
     link.appendChild(media);
 
