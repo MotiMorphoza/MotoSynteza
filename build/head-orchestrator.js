@@ -62,7 +62,10 @@ class HeadOrchestrator {
     tags.push(...this.extractAll(existingContent, /<link[^>]*rel=["']stylesheet["'][^>]*>/gi));
 
     // Preload CSS (deterministic from renameMap)
-    if (!/projects\.html$/i.test(this.htmlFile)) {
+    const fileName = this.htmlFile.split(/[\\/]/).pop();
+
+if (fileName !== 'projects.html') {
+
   const cssPreload = this.getCssPreload();
   if (cssPreload) tags.push(cssPreload);
 
