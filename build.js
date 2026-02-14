@@ -69,23 +69,22 @@ class SuperBuild {
         );
       }
 
-      // ---------- Rewrite HTML ----------
+      // ---------- Rewrite HTML (root pages) ----------
       const htmlFiles = this.scanner.findHtmlFiles(tempDir);
       this.htmlProcessor.processHtmlFiles(htmlFiles, tempDir, renameMap);
 
-// Process partials (e.g., sidebar.html)
-const partialsDir = path.join(tempDir, 'partials');
+      // ---------- Rewrite partials as fragments ----------
+      const partialsDir = path.join(tempDir, 'partials');
 
-if (fs.existsSync(partialsDir)) {
-  const partialFiles = fs.readdirSync(partialsDir)
-    .filter(f => f.endsWith('.html'));
+      if (fs.existsSync(partialsDir)) {
+        const partialFiles = fs.readdirSync(partialsDir)
+          .filter(f => f.endsWith('.html'));
 
-  for (const partialFile of partialFiles) {
-    const filePath = path.join(partialsDir, partialFile);
-    this.htmlProcessor.processFile(filePath, renameMap, tempDir);
-  }
-}
-
+        for (const partialFile of partialFiles) {
+          const filePath = path.join(partialsDir, partialFile);
+          this.htmlProcessor.processFragment(filePath, renameMap, tempDir);
+        }
+      }
 
       // ---------- Rewrite manifest ----------
       const jsFilesAfterHash = fs.readdirSync(jsDir);
@@ -108,28 +107,28 @@ if (fs.existsSync(partialsDir)) {
 
       fs.writeFileSync(manifestFullPath, manifestJs, 'utf8');
 
-// ---------- Rewrite CSS url() references ----------
-const cssDir = path.join(tempDir, 'css');
+      // ---------- Rewrite CSS url() ----------
+      const cssDir = path.join(tempDir, 'css');
 
-if (fs.existsSync(cssDir)) {
-  const cssFiles = fs.readdirSync(cssDir).filter(f => f.endsWith('.css'));
+      if (fs.existsSync(cssDir)) {
+        const cssFiles = fs.readdirSync(cssDir)
+          .filter(f => f.endsWith('.css'));
 
-  for (const cssFile of cssFiles) {
-    const cssPath = path.join(cssDir, cssFile);
-    let cssContent = fs.readFileSync(cssPath, 'utf8');
+        for (const cssFile of cssFiles) {
+          const cssPath = path.join(cssDir, cssFile);
+          let cssContent = fs.readFileSync(cssPath, 'utf8');
 
-    for (const [oldPath, newPath] of renameMap.entries()) {
-      const escaped = oldPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(escaped, 'g');
-      cssContent = cssContent.replace(regex, newPath);
-    }
+          for (const [oldPath, newPath] of renameMap.entries()) {
+            const escaped = oldPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(escaped, 'g');
+            cssContent = cssContent.replace(regex, newPath);
+          }
 
-    fs.writeFileSync(cssPath, cssContent, 'utf8');
-  }
-}
+          fs.writeFileSync(cssPath, cssContent, 'utf8');
+        }
+      }
 
-
-      // ---------- HEAD orchestration per page ----------
+      // ---------- HEAD orchestration ----------
       const assets = {
         versionScriptPath: hashedVersionFile
           ? `js/${hashedVersionFile}`
@@ -162,19 +161,17 @@ if (fs.existsSync(cssDir)) {
         fs.writeFileSync(filePath, html, 'utf8');
       }
 
-      // ---------- Verify ----------
+      // ---------- Verify root pages ----------
       this.htmlProcessor.verifyReferences(htmlFiles, tempDir);
 
-if (fs.existsSync(partialsDir)) {
-  const partialFiles = fs.readdirSync(partialsDir)
-    .filter(f => f.endsWith('.html'));
+      // ---------- Verify partials ----------
+      if (fs.existsSync(partialsDir)) {
+        const partialFiles = fs.readdirSync(partialsDir)
+          .filter(f => f.endsWith('.html'))
+          .map(f => path.join('partials', f));
 
-  this.htmlProcessor.verifyReferences(
-    partialFiles.map(f => path.join('partials', f)),
-    tempDir
-  );
-}
-
+        this.htmlProcessor.verifyReferences(partialFiles, tempDir);
+      }
 
       // ---------- Deploy ----------
       this.deployer.deploy(this.rootDir);

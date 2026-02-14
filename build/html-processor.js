@@ -7,6 +7,9 @@ class HtmlProcessor {
     this.logger = logger;
   }
 
+  // ================================
+  // FULL HTML FILES (require <head>)
+  // ================================
   processHtmlFiles(htmlFiles, buildDir, renameMap) {
     for (const htmlFile of htmlFiles) {
       const filePath = path.join(buildDir, htmlFile);
@@ -20,10 +23,9 @@ class HtmlProcessor {
     let content = fs.readFileSync(filePath, 'utf8');
 
     if (!/<head[^>]*>/i.test(content)) {
-      this.logger.error(
-        `Missing <head> tag in ${path.relative(buildDir, filePath)}`
+      throw new Error(
+        `HTML file missing <head>: ${path.relative(buildDir, filePath)}`
       );
-      throw new Error('HTML file missing <head> tag');
     }
 
     content = this.updateAssetReferences(
@@ -36,19 +38,39 @@ class HtmlProcessor {
     fs.writeFileSync(filePath, content, 'utf8');
   }
 
+  // ================================
+  // FRAGMENTS / PARTIALS (no <head>)
+  // ================================
+  processFragment(filePath, renameMap, buildDir) {
+    let content = fs.readFileSync(filePath, 'utf8');
+
+    content = this.updateAssetReferences(
+      content,
+      renameMap,
+      filePath,
+      buildDir
+    );
+
+    fs.writeFileSync(filePath, content, 'utf8');
+  }
+
+  // ================================
+  // UPDATE REFERENCES
+  // ================================
   updateAssetReferences(html, renameMap, htmlFilePath, buildDir) {
     html = this.updateStylesheets(html, renameMap, htmlFilePath, buildDir);
     html = this.updateScripts(html, renameMap, htmlFilePath, buildDir);
     html = this.updateImages(html, renameMap, htmlFilePath, buildDir);
-    html = this.updateGenericAssets(html, renameMap, htmlFilePath, buildDir);
+    html = this.updateInlineStyles(html, renameMap, htmlFilePath, buildDir);
+    html = this.updateMetaContent(html, renameMap, htmlFilePath, buildDir);
 
     return html;
   }
 
   updateStylesheets(html, renameMap, htmlFilePath, buildDir) {
-    const linkRegex = /<link\s+([^>]*?)href=["']([^"']+)["']([^>]*?)>/gi;
+    const regex = /<link\s+([^>]*?)href=["']([^"']+)["']([^>]*?)>/gi;
 
-    return html.replace(linkRegex, (match, before, href, after) => {
+    return html.replace(regex, (match, before, href, after) => {
       if (!/rel\s*=\s*["']stylesheet["']/i.test(match)) return match;
       if (this.isExternal(href)) return match;
 
@@ -66,9 +88,9 @@ class HtmlProcessor {
   }
 
   updateScripts(html, renameMap, htmlFilePath, buildDir) {
-    const scriptRegex = /<script\s+([^>]*?)src=["']([^"']+)["']([^>]*?)>/gi;
+    const regex = /<script\s+([^>]*?)src=["']([^"']+)["']([^>]*?)>/gi;
 
-    return html.replace(scriptRegex, (match, before, src, after) => {
+    return html.replace(regex, (match, before, src, after) => {
       if (this.isExternal(src)) return match;
 
       const newSrc = this.resolveNewPath(
@@ -85,9 +107,9 @@ class HtmlProcessor {
   }
 
   updateImages(html, renameMap, htmlFilePath, buildDir) {
-    const imgRegex = /<img\s+([^>]*?)src=["']([^"']+)["']([^>]*?)>/gi;
+    const regex = /<img\s+([^>]*?)src=["']([^"']+)["']([^>]*?)>/gi;
 
-    return html.replace(imgRegex, (match, before, src, after) => {
+    return html.replace(regex, (match, before, src, after) => {
       if (this.isExternal(src)) return match;
 
       const newSrc = this.resolveNewPath(
@@ -103,10 +125,29 @@ class HtmlProcessor {
     });
   }
 
-  updateGenericAssets(html, renameMap, htmlFilePath, buildDir) {
-    const attrRegex = /(href|content)=["']([^"']+)["']/gi;
+  updateInlineStyles(html, renameMap, htmlFilePath, buildDir) {
+    const regex = /url\(["']?([^"')]+)["']?\)/gi;
 
-    return html.replace(attrRegex, (match, attr, value) => {
+    return html.replace(regex, (match, assetPath) => {
+      if (this.isExternal(assetPath)) return match;
+
+      const newPath = this.resolveNewPath(
+        assetPath,
+        renameMap,
+        htmlFilePath,
+        buildDir
+      );
+
+      return newPath !== assetPath
+        ? `url("${newPath}")`
+        : match;
+    });
+  }
+
+  updateMetaContent(html, renameMap, htmlFilePath, buildDir) {
+    const regex = /(content|href)=["']([^"']+)["']/gi;
+
+    return html.replace(regex, (match, attr, value) => {
       if (this.isExternal(value)) return match;
 
       const newValue = this.resolveNewPath(
@@ -122,6 +163,53 @@ class HtmlProcessor {
     });
   }
 
+  // ================================
+  // VERIFY
+  // ================================
+  verifyReferences(htmlFiles, buildDir) {
+    for (const htmlFile of htmlFiles) {
+      const filePath = path.join(buildDir, htmlFile);
+      const content = fs.readFileSync(filePath, 'utf8');
+
+      this.verifyAssets(content, filePath, buildDir);
+    }
+  }
+
+  verifyAssets(html, htmlFilePath, buildDir) {
+    const regex = /(src|href)=["']([^"']+)["']/gi;
+    let match;
+
+    while ((match = regex.exec(html)) !== null) {
+      const value = match[2];
+      if (this.isExternal(value)) continue;
+
+      this.checkFileExists(value, htmlFilePath, buildDir);
+    }
+  }
+
+  checkFileExists(href, htmlFilePath, buildDir) {
+    let filePath;
+
+    if (href.startsWith('/')) {
+      filePath = path.join(buildDir, href.substring(1));
+    } else {
+      const htmlDir = path.dirname(htmlFilePath);
+      filePath = path.resolve(htmlDir, href);
+    }
+
+    if (!fs.existsSync(filePath)) {
+      throw new Error(
+        `Missing file: ${href} (from ${path.relative(
+          buildDir,
+          htmlFilePath
+        )})`
+      );
+    }
+  }
+
+  // ================================
+  // HELPERS
+  // ================================
   isExternal(url) {
     return (
       url.startsWith('http://') ||
@@ -148,75 +236,6 @@ class HtmlProcessor {
     }
 
     return href;
-  }
-
-  verifyReferences(htmlFiles, buildDir) {
-    for (const htmlFile of htmlFiles) {
-      const filePath = path.join(buildDir, htmlFile);
-      const content = fs.readFileSync(filePath, 'utf8');
-
-      this.verifyStylesheetReferences(content, filePath, buildDir);
-      this.verifyScriptReferences(content, filePath, buildDir);
-      this.verifyImageReferences(content, filePath, buildDir);
-    }
-  }
-
-  verifyStylesheetReferences(html, htmlFilePath, buildDir) {
-    const linkRegex = /<link\s+[^>]*?href=["']([^"']+)["'][^>]*?>/gi;
-    let match;
-
-    while ((match = linkRegex.exec(html)) !== null) {
-      if (!/rel\s*=\s*["']stylesheet["']/i.test(match[0])) continue;
-
-      const href = match[1];
-      if (this.isExternal(href)) continue;
-
-      this.checkFileExists(href, htmlFilePath, buildDir);
-    }
-  }
-
-  verifyScriptReferences(html, htmlFilePath, buildDir) {
-    const scriptRegex = /<script\s+[^>]*?src=["']([^"']+)["'][^>]*?>/gi;
-    let match;
-
-    while ((match = scriptRegex.exec(html)) !== null) {
-      const src = match[1];
-      if (this.isExternal(src)) continue;
-
-      this.checkFileExists(src, htmlFilePath, buildDir);
-    }
-  }
-
-  verifyImageReferences(html, htmlFilePath, buildDir) {
-    const imgRegex = /<img\s+[^>]*?src=["']([^"']+)["'][^>]*?>/gi;
-    let match;
-
-    while ((match = imgRegex.exec(html)) !== null) {
-      const src = match[1];
-      if (this.isExternal(src)) continue;
-
-      this.checkFileExists(src, htmlFilePath, buildDir);
-    }
-  }
-
-  checkFileExists(href, htmlFilePath, buildDir) {
-    let filePath;
-
-    if (href.startsWith('/')) {
-      filePath = path.join(buildDir, href.substring(1));
-    } else {
-      const htmlDir = path.dirname(htmlFilePath);
-      filePath = path.resolve(htmlDir, href);
-    }
-
-    if (!fs.existsSync(filePath)) {
-      throw new Error(
-        `Referenced file does not exist: ${href} (from ${path.relative(
-          buildDir,
-          htmlFilePath
-        )})`
-      );
-    }
   }
 }
 
