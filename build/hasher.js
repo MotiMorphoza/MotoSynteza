@@ -102,9 +102,17 @@ class Hasher {
     buildDir
   );
 
+const imageFiles = scanner.scanDirectory(
+  path.join(buildDir, 'images'),
+  ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg'],
+  [],
+  buildDir
+);
+
+
   const allFiles = [];
 
-  for (const f of [...cssFiles, ...jsFiles]) {
+  for (const f of [...cssFiles, ...jsFiles, ...imageFiles]) {
     const fullPath = path.join(buildDir, f);
     allFiles.push(fullPath);
   }
