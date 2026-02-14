@@ -17,12 +17,13 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((html) => {
         rightContainer.innerHTML = html;
 
-        // יצירת גלריה
-        const gallery = document.getElementById("project-gallery");
+        const gallery = rightContainer.querySelector("#project-gallery");
         if (!gallery) return;
 
         const basePath = `projects/${slug}/`;
         const totalImages = 25;
+
+        gallery.innerHTML = "";
 
         for (let i = 1; i <= totalImages; i++) {
           const num = String(i).padStart(2, "0");
@@ -51,6 +52,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const grid = document.createElement("div");
     grid.className = "project-grid";
 
+    const link = document.createElement("a");
+    link.href = "#";
+    link.className = "project-link";
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      openProject(project.slug);
+    });
+
     const media = document.createElement("img");
     media.className = "project-media";
     media.alt = project.title;
@@ -68,8 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
       media.removeAttribute("src");
     };
 
-    // לחיצה על תמונת השער
-    media.addEventListener("click", () => openProject(project.slug));
+    link.appendChild(media);
 
     const text = document.createElement("div");
     text.className = "project-text";
@@ -84,11 +92,11 @@ document.addEventListener("DOMContentLoaded", () => {
     text.appendChild(p);
 
     if (index % 2 === 0) {
-      grid.appendChild(media);
+      grid.appendChild(link);
       grid.appendChild(text);
     } else {
       grid.appendChild(text);
-      grid.appendChild(media);
+      grid.appendChild(link);
     }
 
     section.appendChild(grid);
