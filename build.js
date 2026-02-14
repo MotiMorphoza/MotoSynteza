@@ -41,14 +41,13 @@ class SuperBuild {
 
       const manifestPath = path.join(tempDir, 'js', 'image-manifest.js');
       this.manifestGenerator.generate(manifestData, manifestPath);
-
       const manifestContent = fs.readFileSync(manifestPath, 'utf8');
 
       // ---------- Preliminary version ----------
       const prelimVersion = this.versioning.generateVersion(new Map(), manifestContent);
       this.versioning.createVersionFile(tempDir, prelimVersion);
 
-      // ---------- Hash CSS / JS / Images ----------
+      // ---------- Hash assets ----------
       this.hasher.hashAssets(tempDir, this.scanner);
       const renameMap = this.hasher.getRenameMap();
 
@@ -70,13 +69,12 @@ class SuperBuild {
         );
       }
 
-      // ---------- Rewrite HTML (root pages) ----------
+      // ---------- Rewrite ALL HTML ----------
       const htmlFiles = this.scanner.findHtmlFiles(tempDir);
       this.htmlProcessor.processHtmlFiles(htmlFiles, tempDir, renameMap);
 
-      // ---------- Rewrite partials as fragments ----------
+      // ---------- Rewrite partials ----------
       const partialsDir = path.join(tempDir, 'partials');
-
       if (fs.existsSync(partialsDir)) {
         const partialFiles = fs.readdirSync(partialsDir)
           .filter(f => f.endsWith('.html'));
@@ -84,6 +82,26 @@ class SuperBuild {
         for (const partialFile of partialFiles) {
           const filePath = path.join(partialsDir, partialFile);
           this.htmlProcessor.processFragment(filePath, renameMap, tempDir);
+        }
+      }
+
+      // ---------- Rewrite CSS url() ----------
+      const cssDir = path.join(tempDir, 'css');
+      if (fs.existsSync(cssDir)) {
+        const cssFiles = fs.readdirSync(cssDir)
+          .filter(f => f.endsWith('.css'));
+
+        for (const cssFile of cssFiles) {
+          const cssPath = path.join(cssDir, cssFile);
+          let cssContent = fs.readFileSync(cssPath, 'utf8');
+
+          for (const [oldPath, newPath] of renameMap.entries()) {
+            const escaped = oldPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(escaped, 'g');
+            cssContent = cssContent.replace(regex, newPath);
+          }
+
+          fs.writeFileSync(cssPath, cssContent, 'utf8');
         }
       }
 
@@ -108,52 +126,25 @@ class SuperBuild {
 
       fs.writeFileSync(manifestFullPath, manifestJs, 'utf8');
 
-      // ---------- Rewrite CSS url() ----------
-      const cssDir = path.join(tempDir, 'css');
-
-      if (fs.existsSync(cssDir)) {
-        const cssFiles = fs.readdirSync(cssDir)
-          .filter(f => f.endsWith('.css'));
-
-        for (const cssFile of cssFiles) {
-          const cssPath = path.join(cssDir, cssFile);
-          let cssContent = fs.readFileSync(cssPath, 'utf8');
-
-          for (const [oldPath, newPath] of renameMap.entries()) {
-            const escaped = oldPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp(escaped, 'g');
-            cssContent = cssContent.replace(regex, newPath);
-          }
-
-          fs.writeFileSync(cssPath, cssContent, 'utf8');
-        }
-      }
-
       // ---------- HEAD orchestration ----------
       const assets = {
         versionScriptPath: hashedVersionFile
           ? `js/${hashedVersionFile}`
           : null,
+        renameMap,
+        version: finalVersion,
         cspPolicy:
-          "default-src 'self'; img-src 'self' https: data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'"
+          "default-src 'self'; img-src 'self' https: data:; script-src 'self'; style-src 'self'; font-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'"
       };
 
       for (const htmlFile of htmlFiles) {
         const filePath = path.join(tempDir, htmlFile);
         let html = fs.readFileSync(filePath, 'utf8');
 
-        const pageName = htmlFile.replace('.html', '');
-
-        const pageSpecificManifest = {
-          ...manifestData,
-          landing: pageName === 'index' ? manifestData.landing : [],
-          main: pageName === 'main' ? manifestData.main : []
-        };
-
         const headOrchestrator = new HeadOrchestrator({
           logger: this.logger,
           renameMap,
-          manifestData: pageSpecificManifest,
+          manifestData,
           version: finalVersion,
           assets
         });
@@ -162,10 +153,9 @@ class SuperBuild {
         fs.writeFileSync(filePath, html, 'utf8');
       }
 
-      // ---------- Verify root pages ----------
+      // ---------- Verify ----------
       this.htmlProcessor.verifyReferences(htmlFiles, tempDir);
 
-      // ---------- Verify partials ----------
       if (fs.existsSync(partialsDir)) {
         const partialFiles = fs.readdirSync(partialsDir)
           .filter(f => f.endsWith('.html'))
@@ -176,7 +166,6 @@ class SuperBuild {
 
       // ---------- Deploy ----------
       this.deployer.deploy(this.rootDir);
-
       this.logger.printSummary(path.join(this.rootDir, 'docs'));
 
     } catch (error) {
