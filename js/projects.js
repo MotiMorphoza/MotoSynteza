@@ -12,28 +12,24 @@ document.addEventListener("DOMContentLoaded", () => {
   manifest.forEach((project, index) => {
     if (!project?.slug || !project?.title) return;
 
-    // --- Section wrapper ---
     const section = document.createElement("section");
     section.className =
       "project-item " +
       (index % 2 === 0 ? "bg-1" : "bg-2") +
       (index % 2 === 1 ? " reverse" : "");
 
-    // --- Grid container ---
     const grid = document.createElement("div");
     grid.className = "project-grid";
 
-    // --- Media ---
     const media = document.createElement("img");
     media.className = "project-media";
     media.alt = project.title;
     media.setAttribute("aria-label", project.title);
-
     media.loading = index === 0 ? "eager" : "lazy";
 
     if (Array.isArray(project.images) && project.images.length > 0) {
-      // Use manifest path directly
-      media.src = project.images[0];
+      // FIX: add images/ prefix
+      media.src = `images/${project.images[0]}`;
     } else {
       media.classList.add("placeholder");
     }
@@ -43,7 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
       media.removeAttribute("src");
     };
 
-    // --- Text block ---
     const text = document.createElement("div");
     text.className = "project-text";
 
@@ -56,7 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
     text.appendChild(h2);
     text.appendChild(p);
 
-    // --- Link wrapper ---
     const link = document.createElement("a");
     link.href = `projects/${project.slug}/`;
     link.setAttribute("aria-label", `Open project ${project.title}`);
