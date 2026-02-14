@@ -110,12 +110,8 @@ class Scanner {
     return sorted.slice(0, limit);
   }
 
-  scanImagesForManifest(imagesDir, rootDir) {
-    const manifest = {
-      landing: [],
-      main: [],
-      projects: []
-    };
+const manifest = scanner.scanImagesForManifest(imagesDir, process.cwd());
+
 
     if (fs.existsSync(imagesDir)) {
       const landingDir = path.join(imagesDir, 'landing');
