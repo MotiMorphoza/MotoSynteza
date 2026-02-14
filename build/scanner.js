@@ -161,26 +161,27 @@ class Scanner {
       );
   }
 
-  scanProjects(projectsDir) {
-    const projects = [];
+scanProjects(projectsDir) {
+  const projects = [];
 
-    let entries;
-    try {
-      entries = fs.readdirSync(projectsDir, { withFileTypes: true });
-    } catch (err) {
-      return projects;
-    }
-
-    for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
-      if (!entry.isDirectory()) continue;
-
-      const projectPath = path.join(projectsDir, entry.name);
-      const project = this.parseProject(projectPath, entry.name);
-      projects.push(project);
-    }
-
+  let entries;
+  try {
+    entries = fs.readdirSync(projectsDir, { withFileTypes: true });
+  } catch (err) {
     return projects;
   }
+
+  for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+    if (!entry.isDirectory()) continue;
+
+    const projectPath = path.join(projectsDir, entry.name);
+    const project = this.parseProject(projectPath, entry.name);
+    projects.push(project);
+  }
+
+  return projects;
+}
+
 
   parseProject(projectPath, slug) {
     const projectJsonPath = path.join(projectPath, 'project.json');
