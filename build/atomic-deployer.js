@@ -1,6 +1,7 @@
 // build/atomic-deployer.js
 const fs = require('fs');
 const path = require('path');
+const Scanner = require('./scanner');
 
 class AtomicDeployer {
   constructor(logger) {
@@ -8,173 +9,119 @@ class AtomicDeployer {
     this.tempDir = '.build-temp';
     this.backupDir = '.docs-backup';
     this.targetDir = 'docs';
+    this.directoriesToCopy = ['css', 'js', 'images', 'partials'];
   }
 
-  /**
-   * Initialize temp directory
-   */
+  // --------------------------------------------------
+  // Initialize fresh temp directory
+  // --------------------------------------------------
   initTempDir(rootDir) {
     const tempPath = path.join(rootDir, this.tempDir);
-    
-    // Remove if exists
+
     if (fs.existsSync(tempPath)) {
-      this.logger.info('Removing existing temp directory');
-      this.rmRecursive(tempPath);
+      fs.rmSync(tempPath, { recursive: true, force: true });
     }
 
-    // Create fresh
     fs.mkdirSync(tempPath, { recursive: true });
-    this.logger.info('Created temp build directory');
-    
+    this.logger.info('Temp build directory ready');
+
     return tempPath;
   }
 
-  /**
-   * Copy source to temp directory (scan-based, not hardcoded)
-   */
+  // --------------------------------------------------
+  // Copy project source into temp directory
+  // --------------------------------------------------
   copyToTemp(rootDir, tempDir) {
-    this.logger.info('Copying source files to temp directory');
+    this.logger.info('Copying source into temp directory');
 
-    // Scan for HTML files in root
-    const scanner = require('./scanner');
-const htmlScanner = new scanner(this.logger);
-const htmlFiles = htmlScanner.findHtmlFiles(rootDir);
+    const scanner = new Scanner(this.logger);
+    const htmlFiles = scanner.findHtmlFiles(rootDir);
 
     // Copy HTML files
-    for (const htmlFile of htmlFiles) {
-      const srcPath = path.join(rootDir, htmlFile);
-      const destPath = path.join(tempDir, htmlFile);
-      fs.copyFileSync(srcPath, destPath);
-    }
+    for (const file of htmlFiles) {
+      const src = path.join(rootDir, file);
+      const dest = path.join(tempDir, file);
 
-    // Copy directories
-    const directoriesToCopy = ['css', 'js', 'images', 'partials'];
-    
-    for (const dir of directoriesToCopy) {
-      const srcPath = path.join(rootDir, dir);
-      const destPath = path.join(tempDir, dir);
-
-      if (fs.existsSync(srcPath) && fs.statSync(srcPath).isDirectory()) {
-        this.copyRecursive(srcPath, destPath);
-      } else {
-        this.logger.warn(`Source directory not found: ${dir}`);
-      }
-    }
-  }
-
-  /**
-   * Atomic deployment with rollback protection
-   */
-deploy(rootDir) {
-  const tempPath = path.join(rootDir, this.tempDir);
-  const targetPath = path.join(rootDir, this.targetDir);
-  const backupPath = path.join(rootDir, this.backupDir);
-
-  try {
-    // Remove old backup if exists
-    if (fs.existsSync(backupPath)) {
-      this.rmRecursive(backupPath);
-    }
-
-    // Backup current docs if exists
-    if (fs.existsSync(targetPath)) {
-      this.logger.info('Backing up current docs directory');
-      this.copyRecursive(targetPath, backupPath);
-      this.rmRecursive(targetPath);
-    }
-
-    // Backup current docs if exists
-if (fs.existsSync(targetPath)) {
-  this.logger.info('Backing up current docs directory');
-  this.copyRecursive(targetPath, backupPath);
-  this.rmRecursive(targetPath);
-}
-
-// Promote temp to docs
-this.logger.info('Deploying build to docs directory');
-fs.renameSync(tempPath, targetPath);
-
-
-    // Remove backup on success
-    if (fs.existsSync(backupPath)) {
-      this.rmRecursive(backupPath);
-    }
-
-    this.logger.success('Atomic deployment completed');
-
-  } catch (error) {
-    this.logger.error(`Deployment failed: ${error.message}`);
-
-    // Rollback: restore backup if it exists
-    if (fs.existsSync(backupPath)) {
-      this.logger.info('Rolling back to previous version');
-
-      if (fs.existsSync(targetPath)) {
-        this.rmRecursive(targetPath);
-      }
-
-      this.copyRecursive(backupPath, targetPath);
-      this.rmRecursive(backupPath);
-
-      this.logger.info('Rollback completed');
-    }
-
-    throw error;
-  }
-}
-
-
-  /**
-   * Cleanup on error
-   */
-  cleanup(rootDir) {
-    const tempPath = path.join(rootDir, this.tempDir);
-    
-    if (fs.existsSync(tempPath)) {
-      this.logger.info('Cleaning up temp directory');
-      this.rmRecursive(tempPath);
-    }
-  }
-
-  /**
-   * Recursive copy
-   */
-  copyRecursive(src, dest) {
-    const stat = fs.statSync(src);
-    
-    if (stat.isDirectory()) {
-      if (!fs.existsSync(dest)) {
-        fs.mkdirSync(dest, { recursive: true });
-      }
-      
-      const files = fs.readdirSync(src);
-      for (const file of files) {
-        this.copyRecursive(path.join(src, file), path.join(dest, file));
-      }
-    } else {
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
       fs.copyFileSync(src, dest);
     }
-  }
 
-  /**
-   * Recursive delete
-   */
-  rmRecursive(dir) {
-    if (!fs.existsSync(dir)) return;
+    // Copy static directories
+    for (const dir of this.directoriesToCopy) {
+      const src = path.join(rootDir, dir);
+      const dest = path.join(tempDir, dir);
 
-    const files = fs.readdirSync(dir);
-    for (const file of files) {
-      const filePath = path.join(dir, file);
-      const stat = fs.statSync(filePath);
-      
-      if (stat.isDirectory()) {
-        this.rmRecursive(filePath);
-      } else {
-        fs.unlinkSync(filePath);
+      if (fs.existsSync(src) && fs.statSync(src).isDirectory()) {
+        fs.cpSync(src, dest, { recursive: true });
       }
     }
-    
-    fs.rmdirSync(dir);
+  }
+
+  // --------------------------------------------------
+  // Atomic deploy with safe swap + rollback
+  // --------------------------------------------------
+  deploy(rootDir) {
+    const tempPath = path.join(rootDir, this.tempDir);
+    const targetPath = path.join(rootDir, this.targetDir);
+    const backupPath = path.join(rootDir, this.backupDir);
+
+    try {
+      // Remove stale backup
+      if (fs.existsSync(backupPath)) {
+        fs.rmSync(backupPath, { recursive: true, force: true });
+      }
+
+      // If docs exists → move it to backup (atomic rename)
+      if (fs.existsSync(targetPath)) {
+        this.logger.info('Creating backup of current docs');
+        fs.renameSync(targetPath, backupPath);
+      }
+
+      // Promote temp → docs (atomic rename)
+      this.logger.info('Promoting build to docs');
+      fs.renameSync(tempPath, targetPath);
+
+      // If everything succeeded → remove backup
+      if (fs.existsSync(backupPath)) {
+        fs.rmSync(backupPath, { recursive: true, force: true });
+      }
+
+      this.logger.success('Deployment completed successfully');
+
+    } catch (error) {
+      this.logger.error(`Deployment failed: ${error.message}`);
+
+      // Rollback if backup exists
+      if (fs.existsSync(backupPath)) {
+        this.logger.info('Restoring previous version');
+
+        if (fs.existsSync(targetPath)) {
+          fs.rmSync(targetPath, { recursive: true, force: true });
+        }
+
+        fs.renameSync(backupPath, targetPath);
+        this.logger.info('Rollback completed');
+      }
+
+      // Clean temp if still exists
+      if (fs.existsSync(tempPath)) {
+        fs.rmSync(tempPath, { recursive: true, force: true });
+      }
+
+      throw error;
+    }
+  }
+
+  // --------------------------------------------------
+  // Cleanup temp directory manually
+  // --------------------------------------------------
+  cleanup(rootDir) {
+    const tempPath = path.join(rootDir, this.tempDir);
+
+    if (fs.existsSync(tempPath)) {
+      fs.rmSync(tempPath, { recursive: true, force: true });
+      this.logger.info('Temp directory cleaned');
+    }
   }
 }
 
