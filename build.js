@@ -84,6 +84,18 @@ class SuperBuild {
       const htmlFiles = this.scanner.findHtmlFiles(tempDir);
       this.htmlProcessor.processHtmlFiles(htmlFiles, tempDir, renameMap);
 
+// Rewrite manifest paths after hashing
+const manifestFullPath = path.join(tempDir, 'js', 'image-manifest.js');
+let manifestJs = fs.readFileSync(manifestFullPath, 'utf8');
+
+for (const [oldPath, newPath] of renameMap.entries()) {
+  const escaped = oldPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(escaped, 'g');
+  manifestJs = manifestJs.replace(regex, newPath);
+}
+
+fs.writeFileSync(manifestFullPath, manifestJs, 'utf8');
+
       // 9. Prepare assets object for HeadOrchestrator
       const versionScriptPath = hashedVersionFile
         ? `js/${hashedVersionFile}`
