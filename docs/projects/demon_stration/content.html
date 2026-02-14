@@ -1,45 +1,22 @@
-<div class="project-container" id="project"></div>
-
-<div class="viewer" id="viewer">
-  <button class="back" id="backBtn">BACK</button>
-  <img id="viewerImg" src="" alt="" />
+<div class="project-content">
+  <div class="project-gallery" id="project-gallery"></div>
 </div>
 
+<link rel="stylesheet" href="css/projects.css" />
+
 <script>
-const container = document.getElementById("project");
-const viewer = document.getElementById("viewer");
-const viewerImg = document.getElementById("viewerImg");
-const backBtn = document.getElementById("backBtn");
+  (function () {
+    const gallery = document.getElementById("project-gallery");
+    const basePath = "projects/demo_stration/";
+    const totalImages = 25;
 
-fetch("images/projects/demon_stration/project.json")
-  .then(res => res.json())
-  .then(data => {
-    data.slides.forEach(slide => {
-      const slideEl = document.createElement("div");
-      slideEl.className = "slide";
-
-      if (slide.caption) {
-        const caption = document.createElement("div");
-        caption.className = "caption";
-        caption.textContent = slide.caption;
-        slideEl.appendChild(caption);
-      }
-
+    for (let i = 1; i <= totalImages; i++) {
+      const num = String(i).padStart(2, "0");
       const img = document.createElement("img");
-      img.src = "images/projects/demon_stration/" + slide.file;
-      slideEl.appendChild(img);
-
-      img.addEventListener("click", () => {
-        viewerImg.src = img.src;
-        viewer.classList.add("active");
-      });
-
-      container.appendChild(slideEl);
-    });
-  });
-
-backBtn.addEventListener("click", () => {
-  viewer.classList.remove("active");
-  viewerImg.src = "";
-});
+      img.src = `${basePath}demon${num}.jpg`;
+      img.alt = `demon ${num}`;
+      img.loading = "lazy";
+      gallery.appendChild(img);
+    }
+  })();
 </script>
