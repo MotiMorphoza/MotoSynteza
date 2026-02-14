@@ -3,33 +3,37 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!listEl) return;
 
   const manifest = window.__MANIFEST__?.projects;
-
   if (!Array.isArray(manifest) || manifest.length === 0) {
     console.warn("Projects manifest is missing or empty.");
     return;
   }
 
   manifest.forEach((project, index) => {
-    if (!project?.slug || !project?.title) return;
+    if (!project) return;
 
+    const title = project.title || project.slug || "";
+    const description = project.description || "";
+
+    // --- Section wrapper ---
     const section = document.createElement("section");
     section.className =
       "project-item " +
       (index % 2 === 0 ? "bg-1" : "bg-2") +
       (index % 2 === 1 ? " reverse" : "");
 
+    // --- Grid container ---
     const grid = document.createElement("div");
     grid.className = "project-grid";
 
+    // --- Media ---
     const media = document.createElement("img");
     media.className = "project-media";
-    media.alt = project.title;
-    media.setAttribute("aria-label", project.title);
+    media.alt = title;
+    media.setAttribute("aria-label", title);
     media.loading = index === 0 ? "eager" : "lazy";
 
     if (Array.isArray(project.images) && project.images.length > 0) {
-      // FIX: add images/ prefix
-      media.src = `images/${project.images[0]}`;
+      media.src = project.images[0];
     } else {
       media.classList.add("placeholder");
     }
@@ -39,21 +43,23 @@ document.addEventListener("DOMContentLoaded", () => {
       media.removeAttribute("src");
     };
 
+    // --- Text block ---
     const text = document.createElement("div");
     text.className = "project-text";
 
     const h2 = document.createElement("h2");
-    h2.textContent = project.title;
+    h2.textContent = title;
 
     const p = document.createElement("p");
-    p.textContent = project.description || "";
+    p.textContent = description;
 
     text.appendChild(h2);
     text.appendChild(p);
 
+    // --- Link wrapper ---
     const link = document.createElement("a");
     link.href = `projects/${project.slug}/`;
-    link.setAttribute("aria-label", `Open project ${project.title}`);
+    link.setAttribute("aria-label", `Open project ${title}`);
     link.appendChild(media);
 
     if (index % 2 === 0) {
