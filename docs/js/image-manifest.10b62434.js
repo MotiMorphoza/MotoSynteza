@@ -31,7 +31,7 @@ window.__MANIFEST__ = {
       "title": "Demon_Stration",
       "description": "",
       "images": [
-        "projects/demon_Stration/cover.jpg"
+        "images/projects/demon_Stration/cover.jpg"
       ]
     },
     {
@@ -39,7 +39,7 @@ window.__MANIFEST__ = {
       "title": "Ohhhhh Your God",
       "description": "A visual commentary on religious spectacle, mass emotion, and the tension between faith, identity, and modern performance.",
       "images": [
-        "projects/ohhhhh_your_god/cover.jpg"
+        "images/projects/ohhhhh_your_god/cover.jpg"
       ]
     },
     {
@@ -47,7 +47,7 @@ window.__MANIFEST__ = {
       "title": "Unusual Usual",
       "description": "Everyday scenes transformed into quiet visual paradoxes, where normality reveals its hidden strangeness.",
       "images": [
-        "projects/unusuall_usual/cover.jpg"
+        "images/projects/unusuall_usual/cover.jpg"
       ]
     },
     {
@@ -55,7 +55,7 @@ window.__MANIFEST__ = {
       "title": "Window to Redemption",
       "description": "Urban windows as metaphors for hope, isolation, and the fragile possibility of personal and social transformation.",
       "images": [
-        "projects/window_to_redemption/cover.jpg"
+        "images/projects/window_to_redemption/cover.jpg"
       ]
     },
     {
@@ -63,7 +63,7 @@ window.__MANIFEST__ = {
       "title": "Windows: Eyes of the Modern Soul",
       "description": "Architectural fragments turned into portraits of contemporary life, reflecting the emotions and contradictions of modern society.",
       "images": [
-        "projects/windows_eyes_of_the_modern_soul/cover.jpg"
+        "images/projects/windows_eyes_of_the_modern_soul/cover.jpg"
       ]
     }
   ]
