@@ -187,7 +187,6 @@ class Scanner {
     description: ''
   };
 
-  // Try to load project.json
   if (fs.existsSync(projectJsonPath)) {
     try {
       const content = fs.readFileSync(projectJsonPath, 'utf8');
@@ -196,11 +195,8 @@ class Scanner {
     } catch (err) {
       this.logger.warn(`Invalid project.json in ${slug}: ${err.message}`);
     }
-  } else {
-    this.logger.warn(`Missing project.json in ${slug}, using defaults`);
   }
 
-  // Get images inside project folder
   const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
   let images = [];
 
@@ -210,7 +206,7 @@ class Scanner {
     images = files
       .filter(f => imageExtensions.includes(path.extname(f).toLowerCase()))
       .sort()
-      .map(f => `projects/${slug}/${f}`);
+      .map(f => `images/projects/${slug}/${f}`);
   }
 
   return {
