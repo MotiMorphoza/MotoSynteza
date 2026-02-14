@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // לינק אמיתי כמו בתפריט
     const link = document.createElement("a");
-    link.href = `projects/${project.slug}/content.html`;
+    link.href = "about.html";
     link.className = "project-link";
     link.setAttribute("data-load", "right-container");
 
