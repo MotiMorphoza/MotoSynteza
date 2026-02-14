@@ -81,7 +81,8 @@ class PreloadInjector {
     // Find the hashed CSS file
     for (const [oldPath, newPath] of renameMap.entries()) {
       if (oldPath.startsWith('css/') && oldPath.endsWith('.css')) {
-        return `<link rel="preload" href="/${newPath}" as="style">`;
+        return `<link rel="preload" href="${newPath}" as="style">`;
+
       }
     }
     return null;
@@ -91,11 +92,11 @@ class PreloadInjector {
     if (!manifest) return null;
 
     if (htmlFile === 'index.html' && manifest.landing && manifest.landing[0]) {
-      return `<link rel="preload" href="/${manifest.landing[0]}" as="image">`;
+      return `<link rel="preload" href="${manifest.landing[0]}" as="image">`;
     }
 
     if (htmlFile === 'main.html' && manifest.main && manifest.main[0]) {
-      return `<link rel="preload" href="/${manifest.main[0]}" as="image">`;
+      return `<link rel="preload" href="${manifest.main[0]}" as="image">`;
     }
 
     return null;
@@ -110,7 +111,7 @@ class PreloadInjector {
     for (const fontPath of fontFiles) {
       const ext = path.extname(fontPath).substring(1);
       const relativePath = path.relative(buildDir, fontPath).replace(/\\/g, '/');
-      preloads.push(`<link rel="preload" href="/${relativePath}" as="font" type="font/${ext}" crossorigin>`);
+      preloads.push(`<link rel="preload" href="${relativePath}" as="font" type="font/${ext}" crossorigin>`);
     }
 
     return preloads;
