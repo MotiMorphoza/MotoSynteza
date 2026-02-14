@@ -72,6 +72,19 @@ class SuperBuild {
       // ---------- Rewrite HTML ----------
       const htmlFiles = this.scanner.findHtmlFiles(tempDir);
       this.htmlProcessor.processHtmlFiles(htmlFiles, tempDir, renameMap);
+// Process partials (e.g., sidebar.html)
+const partialsDir = path.join(tempDir, 'partials');
+
+if (fs.existsSync(partialsDir)) {
+  const partialFiles = fs.readdirSync(partialsDir)
+    .filter(f => f.endsWith('.html'));
+
+  for (const partialFile of partialFiles) {
+    const filePath = path.join(partialsDir, partialFile);
+    this.htmlProcessor.processFile(filePath, renameMap, tempDir);
+  }
+}
+
 
       // ---------- Rewrite manifest ----------
       const jsFilesAfterHash = fs.readdirSync(jsDir);
