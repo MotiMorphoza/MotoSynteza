@@ -1,22 +1,3 @@
 <div class="project-content">
   <div class="project-gallery" id="project-gallery"></div>
 </div>
-
-<link rel="stylesheet" href="css/projects.css" />
-
-<script>
-  (function () {
-    const gallery = document.getElementById("project-gallery");
-    const basePath = "projects/demo_stration/";
-    const totalImages = 25;
-
-    for (let i = 1; i <= totalImages; i++) {
-      const num = String(i).padStart(2, "0");
-      const img = document.createElement("img");
-      img.src = `${basePath}demon${num}.jpg`;
-      img.alt = `demon ${num}`;
-      img.loading = "lazy";
-      gallery.appendChild(img);
-    }
-  })();
-</script>
