@@ -172,10 +172,12 @@ results.push(relative);
       )
       .sort()
       .map(f =>
-        path
-          .relative(imagesRoot, path.join(dir, f))
-          .replace(/\\/g, '/')
-      );
+  'images/' +
+  path
+    .relative(imagesRoot, path.join(dir, f))
+    .replace(/\\/g, '/')
+);
+
   }
 
   // --------------------------------------------------
