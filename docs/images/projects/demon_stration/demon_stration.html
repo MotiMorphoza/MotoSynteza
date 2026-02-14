@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Demon Stration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/css/project.css" />
+</head>
+<body>
+
+<div class="project-container" id="project"></div>
+
+<!-- Fullscreen viewer -->
+<div class="viewer" id="viewer">
+  <button class="back" id="backBtn">BACK</button>
+  <img id="viewerImg" src="" alt="" />
+</div>
+
+<script>
+const container = document.getElementById("project");
+const viewer = document.getElementById("viewer");
+const viewerImg = document.getElementById("viewerImg");
+const backBtn = document.getElementById("backBtn");
+
+fetch("project.json")
+  .then(res => res.json())
+  .then(data => {
+    data.slides.forEach(slide => {
+      const slideEl = document.createElement("div");
+      slideEl.className = "slide";
+
+      if (slide.caption) {
+        const caption = document.createElement("div");
+        caption.className = "caption";
+        caption.textContent = slide.caption;
+        slideEl.appendChild(caption);
+      }
+
+      const img = document.createElement("img");
+      img.src = slide.file;
+      img.alt = "";
+      slideEl.appendChild(img);
+
+      img.addEventListener("click", () => {
+        viewerImg.src = img.src;
+        viewer.classList.add("active");
+      });
+
+      container.appendChild(slideEl);
+    });
+  });
+
+backBtn.addEventListener("click", () => {
+  viewer.classList.remove("active");
+  viewerImg.src = "";
+});
+</script>
+
+</body>
+</html>
