@@ -57,14 +57,14 @@ class SuperBuild {
       const prelimVersion = this.versioning.generateVersion(new Map(), manifestContent);
       this.versioning.createVersionFile(tempDir, prelimVersion);
 
-      // 6. Hash assets
+      // 6. Hash assets (CSS, JS, Images)
       this.hasher.hashAssets(tempDir, this.scanner);
       const renameMap = this.hasher.getRenameMap();
 
       // 7. Final version (after hashing)
       const finalVersion = this.versioning.generateVersion(renameMap, manifestContent);
 
-      // Discover hashed version script deterministically
+      // Discover hashed version script
       const jsDir = path.join(tempDir, 'js');
       const jsFiles = fs.readdirSync(jsDir).sort();
       const hashedVersionFile = jsFiles.find(f =>
@@ -84,19 +84,31 @@ class SuperBuild {
       const htmlFiles = this.scanner.findHtmlFiles(tempDir);
       this.htmlProcessor.processHtmlFiles(htmlFiles, tempDir, renameMap);
 
-// Rewrite manifest paths after hashing
-const manifestFullPath = path.join(tempDir, 'js', 'image-manifest.js');
-let manifestJs = fs.readFileSync(manifestFullPath, 'utf8');
+      // 9. Rewrite manifest after hashing (CRITICAL)
+      const jsDirAfterHash = path.join(tempDir, 'js');
+      const jsFilesAfterHash = fs.readdirSync(jsDirAfterHash);
 
-for (const [oldPath, newPath] of renameMap.entries()) {
-  const escaped = oldPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const regex = new RegExp(escaped, 'g');
-  manifestJs = manifestJs.replace(regex, newPath);
-}
+      const manifestFile = jsFilesAfterHash.find(f =>
+        /^image-manifest\.[a-f0-9]{8}\.js$/.test(f)
+      );
 
-fs.writeFileSync(manifestFullPath, manifestJs, 'utf8');
+      if (!manifestFile) {
+        throw new Error('Hashed manifest file not found');
+      }
 
-      // 9. Prepare assets object for HeadOrchestrator
+      const manifestFullPath = path.join(jsDirAfterHash, manifestFile);
+      let manifestJs = fs.readFileSync(manifestFullPath, 'utf8');
+
+      // Apply renameMap replacements
+      for (const [oldPath, newPath] of renameMap.entries()) {
+        const escaped = oldPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(escaped, 'g');
+        manifestJs = manifestJs.replace(regex, newPath);
+      }
+
+      fs.writeFileSync(manifestFullPath, manifestJs, 'utf8');
+
+      // 10. Prepare assets for HeadOrchestrator
       const versionScriptPath = hashedVersionFile
         ? `js/${hashedVersionFile}`
         : null;
@@ -107,7 +119,7 @@ fs.writeFileSync(manifestFullPath, manifestJs, 'utf8');
           "default-src 'self'; img-src 'self' https: data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'"
       };
 
-      // 10. HEAD ORCHESTRATION
+      // 11. HEAD ORCHESTRATION
       const headOrchestrator = new HeadOrchestrator({
         logger: this.logger,
         renameMap,
@@ -123,10 +135,10 @@ fs.writeFileSync(manifestFullPath, manifestJs, 'utf8');
         fs.writeFileSync(filePath, html, 'utf8');
       }
 
-      // 11. Verify references
+      // 12. Verify references
       this.htmlProcessor.verifyReferences(htmlFiles, tempDir);
 
-      // 12. Atomic deploy
+      // 13. Atomic deploy
       this.deployer.deploy(this.rootDir);
 
       const docsPath = path.join(this.rootDir, 'docs');
