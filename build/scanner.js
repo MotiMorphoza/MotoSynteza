@@ -76,8 +76,6 @@ class Scanner {
         const content = fs.readFileSync(fullPath, 'utf8');
         if (/<head[^>]*>/i.test(content)) {
           htmlFiles.push(file);
-        } else if (this.logger && this.logger.debug) {
-          this.logger.debug(`Skipping fragment HTML: ${file}`);
         }
       } catch (err) {
         continue;
@@ -95,23 +93,17 @@ class Scanner {
       dir
     );
 
-    const sorted = allFonts.sort((a, b) => {
-      const extA = path.extname(a);
-      const extB = path.extname(b);
-
-      if (extA === '.woff2' && extB !== '.woff2') return -1;
-      if (extA !== '.woff2' && extB === '.woff2') return 1;
-      if (extA === '.woff' && extB !== '.woff' && extB !== '.woff2') return -1;
-      if (extA !== '.woff' && extB === '.woff') return 1;
-
-      return a.localeCompare(b);
-    });
-
-    return sorted.slice(0, limit);
+    return allFonts.slice(0, limit);
   }
 
-const manifest = scanner.scanImagesForManifest(imagesDir, process.cwd());
+  scanImagesForManifest(imagesDir, rootDir) {
+    if (!rootDir) rootDir = process.cwd();
 
+    const manifest = {
+      landing: [],
+      main: [],
+      projects: []
+    };
 
     if (fs.existsSync(imagesDir)) {
       const landingDir = path.join(imagesDir, 'landing');
@@ -157,27 +149,26 @@ const manifest = scanner.scanImagesForManifest(imagesDir, process.cwd());
       );
   }
 
-scanProjects(projectsDir) {
-  const projects = [];
+  scanProjects(projectsDir) {
+    const projects = [];
 
-  let entries;
-  try {
-    entries = fs.readdirSync(projectsDir, { withFileTypes: true });
-  } catch (err) {
+    let entries;
+    try {
+      entries = fs.readdirSync(projectsDir, { withFileTypes: true });
+    } catch (err) {
+      return projects;
+    }
+
+    for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+      if (!entry.isDirectory()) continue;
+
+      const projectPath = path.join(projectsDir, entry.name);
+      const project = this.parseProject(projectPath, entry.name);
+      projects.push(project);
+    }
+
     return projects;
   }
-
-  for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
-    if (!entry.isDirectory()) continue;
-
-    const projectPath = path.join(projectsDir, entry.name);
-    const project = this.parseProject(projectPath, entry.name);
-    projects.push(project);
-  }
-
-  return projects;
-}
-
 
   parseProject(projectPath, slug) {
     const projectJsonPath = path.join(projectPath, 'project.json');
@@ -195,13 +186,7 @@ scanProjects(projectsDir) {
           fs.readFileSync(projectJsonPath, 'utf8')
         );
         metadata = { ...metadata, ...parsed };
-      } catch (err) {
-        if (this.logger && this.logger.warn) {
-          this.logger.warn(
-            `Invalid project.json in ${slug}: ${err.message}`
-          );
-        }
-      }
+      } catch (err) {}
     }
 
     let images = [];
