@@ -1,23 +1,23 @@
 window.__MANIFEST__ = {
   "landing": [
-    "landing/hero1.jpg",
-    "landing/hero2.jpg",
-    "landing/hero3.jpg",
-    "landing/hero4.jpg",
-    "landing/hero5.jpg",
-    "landing/hero6.jpg"
+    "images/landing/hero1.jpg",
+    "images/landing/hero2.jpg",
+    "images/landing/hero3.jpg",
+    "images/landing/hero4.jpg",
+    "images/landing/hero5.jpg",
+    "images/landing/hero6.jpg"
   ],
   "main": [
-    "main/slide1.jpg",
-    "main/slide10.jpg",
-    "main/slide2.jpg",
-    "main/slide3.jpg",
-    "main/slide4.jpg",
-    "main/slide5.jpg",
-    "main/slide6.jpg",
-    "main/slide7.jpg",
-    "main/slide8.jpg",
-    "main/slide9.jpg"
+    "images/main/slide1.jpg",
+    "images/main/slide10.jpg",
+    "images/main/slide2.jpg",
+    "images/main/slide3.jpg",
+    "images/main/slide4.jpg",
+    "images/main/slide5.jpg",
+    "images/main/slide6.jpg",
+    "images/main/slide7.jpg",
+    "images/main/slide8.jpg",
+    "images/main/slide9.jpg"
   ],
   "projects": [
     {
