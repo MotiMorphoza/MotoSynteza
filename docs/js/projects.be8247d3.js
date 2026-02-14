@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // לחיצה על תמונת שער
-    media.style.cursor = "pointer";
+    
     media.addEventListener("click", () => openProject(project.slug));
 
     const text = document.createElement("div");
