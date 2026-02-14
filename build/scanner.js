@@ -181,48 +181,43 @@ class Scanner {
   }
 
   parseProject(projectPath, slug) {
-    const projectJsonPath = path.join(projectPath, 'project.json');
-    let metadata = {
-      title: slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-      description: ''
-    };
+  const projectJsonPath = path.join(projectPath, 'project.json');
+  let metadata = {
+    title: slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+    description: ''
+  };
 
-    // Try to load project.json
-    if (fs.existsSync(projectJsonPath)) {
-      try {
-        const content = fs.readFileSync(projectJsonPath, 'utf8');
-        const parsed = JSON.parse(content);
-        metadata = { ...metadata, ...parsed };
-      } catch (err) {
-        this.logger.warn(`Invalid project.json in ${slug}: ${err.message}`);
-      }
-    } else {
-      this.logger.warn(`Missing project.json in ${slug}, using defaults`);
+  // Try to load project.json
+  if (fs.existsSync(projectJsonPath)) {
+    try {
+      const content = fs.readFileSync(projectJsonPath, 'utf8');
+      const parsed = JSON.parse(content);
+      metadata = { ...metadata, ...parsed };
+    } catch (err) {
+      this.logger.warn(`Invalid project.json in ${slug}: ${err.message}`);
     }
-
-    // Get images
-    // Get images inside project folder
-const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
-
-let images = [];
-
-if (fs.existsSync(projectPath)) {
-  const files = fs.readdirSync(projectPath);
-
-  images = files
-    .filter(f => imageExtensions.includes(path.extname(f).toLowerCase()))
-    .sort()
-    .map(f => `images/projects/${slug}/${f}`);
-}
-
-
-    return {
-      slug,
-      title: metadata.title,
-      description: metadata.description,
-      images
-    };
+  } else {
+    this.logger.warn(`Missing project.json in ${slug}, using defaults`);
   }
-}
 
+  // Get images inside project folder
+  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+  let images = [];
+
+  if (fs.existsSync(projectPath)) {
+    const files = fs.readdirSync(projectPath);
+
+    images = files
+      .filter(f => imageExtensions.includes(path.extname(f).toLowerCase()))
+      .sort()
+      .map(f => `projects/${slug}/${f}`);
+  }
+
+  return {
+    slug,
+    title: metadata.title,
+    description: metadata.description,
+    images
+  };
+}
 module.exports = Scanner;
