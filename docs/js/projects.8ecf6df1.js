@@ -11,35 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  function openProject(slug) {
-    fetch(`projects/${slug}/content.html`)
-      .then((res) => res.text())
-      .then((html) => {
-        rightContainer.innerHTML = html;
-
-        const gallery = rightContainer.querySelector("#project-gallery");
-        if (!gallery) return;
-
-        const basePath = `projects/${slug}/`;
-        const totalImages = 25;
-
-        gallery.innerHTML = "";
-
-        for (let i = 1; i <= totalImages; i++) {
-          const num = String(i).padStart(2, "0");
-          const img = document.createElement("img");
-          img.src = `${basePath}demon${num}.jpg`;
-          img.alt = `${slug} ${num}`;
-          img.loading = "lazy";
-          gallery.appendChild(img);
-        }
-      })
-      .catch(() => {
-        rightContainer.innerHTML =
-          "<p class='project-error'>Failed to load project.</p>";
-      });
-  }
-
   manifest.forEach((project, index) => {
     if (!project?.slug || !project?.title) return;
 
@@ -52,13 +23,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const grid = document.createElement("div");
     grid.className = "project-grid";
 
+    // לינק אמיתי כמו בתפריט
     const link = document.createElement("a");
-    link.href = "#";
+    link.href = `projects/${project.slug}/content.html`;
     link.className = "project-link";
-    link.addEventListener("click", (e) => {
-      e.preventDefault();
-      openProject(project.slug);
-    });
+    link.setAttribute("data-load", "right-container");
 
     const media = document.createElement("img");
     media.className = "project-media";
