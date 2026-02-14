@@ -13,104 +13,114 @@ class Scanner {
       '.build-temp',
       '.docs-backup'
     ];
+
+    this.imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+    this.fontExtensions = ['.woff2', '.woff', '.ttf', '.otf', '.eot'];
   }
 
-  /**
-   * Recursively scan directory for files matching extensions
-   */
-  scanDirectory(dir, extensions = [], additionalExcludes = []) {
+  // --------------------------------------------------
+  // Generic recursive scanner
+  // --------------------------------------------------
+  scanDirectory(dir, extensions = [], additionalExcludes = [], rootDir = dir) {
     const results = [];
-    
-    if (!fs.existsSync(dir)) {
+
+    if (!fs.existsSync(dir)) return results;
+
+    let entries;
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
       return results;
     }
 
-    const files = fs.readdirSync(dir, { withFileTypes: true });
-    
-    for (const file of files) {
-      const fullPath = path.join(dir, file.name);
-      const relativePath = path.relative(process.cwd(), fullPath);
-      
-      if (file.isDirectory()) {
-        // Skip excluded directories
-        if (this.shouldExclude(file.name, additionalExcludes)) {
-          continue;
-        }
-        results.push(...this.scanDirectory(fullPath, extensions, additionalExcludes));
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+
+      if (entry.isDirectory()) {
+        if (this.shouldExclude(entry.name, additionalExcludes)) continue;
+
+        results.push(
+          ...this.scanDirectory(fullPath, extensions, additionalExcludes, rootDir)
+        );
       } else {
-        // Check extension
-        if (extensions.length === 0 || extensions.includes(path.extname(file.name))) {
-          results.push(relativePath);
+        if (
+          extensions.length === 0 ||
+          extensions.includes(path.extname(entry.name).toLowerCase())
+        ) {
+          const relative = path.relative(rootDir, fullPath).replace(/\\/g, '/');
+          results.push(relative);
         }
       }
     }
-    
-    return results.sort(); // Deterministic ordering
+
+    return results.sort();
   }
 
   shouldExclude(name, additionalExcludes = []) {
-    // Hidden folders
     if (name.startsWith('.')) return true;
-    
-    // Standard excludes
     if (this.excludeDirs.includes(name)) return true;
-    
-    // Additional excludes
     if (additionalExcludes.includes(name)) return true;
-    
     return false;
   }
 
-  /**
-   * Find all HTML files in root
-   */
+  // --------------------------------------------------
+  // Root-level HTML pages only (not fragments)
+  // --------------------------------------------------
   findHtmlFiles(rootDir) {
-  const files = fs.readdirSync(rootDir);
+    if (!fs.existsSync(rootDir)) return [];
 
-  const htmlFiles = [];
+    const files = fs.readdirSync(rootDir);
+    const htmlFiles = [];
 
-  for (const file of files) {
-    if (!file.endsWith('.html')) continue;
+    for (const file of files) {
+      if (!file.endsWith('.html')) continue;
 
-    const fullPath = path.join(rootDir, file);
-    const content = fs.readFileSync(fullPath, 'utf8');
+      const fullPath = path.join(rootDir, file);
 
-    // Only treat as page if it has a <head> tag
-    if (/<head[^>]*>/i.test(content)) {
-      htmlFiles.push(file);
-    } else {
-      this.logger.debug(`Skipping fragment HTML: ${file}`);
+      try {
+        const content = fs.readFileSync(fullPath, 'utf8');
+        if (/<head[^>]*>/i.test(content)) {
+          htmlFiles.push(file);
+        } else {
+          this.logger.debug?.(`Skipping fragment HTML: ${file}`);
+        }
+      } catch {
+        continue;
+      }
     }
+
+    return htmlFiles.sort();
   }
 
-  return htmlFiles.sort();
-}
-
-
-  /**
-   * Find all fonts in directory tree (limit to 2 for preload)
-   */
+  // --------------------------------------------------
+  // Font discovery (preload candidate)
+  // --------------------------------------------------
   findFonts(dir, limit = 2) {
-    const fontExtensions = ['.woff2', '.woff', '.ttf', '.otf', '.eot'];
-    const allFonts = this.scanDirectory(dir, fontExtensions, []);
-    
-    // Prioritize woff2, then woff
+    const allFonts = this.scanDirectory(
+      dir,
+      this.fontExtensions,
+      [],
+      dir
+    );
+
     const sorted = allFonts.sort((a, b) => {
       const extA = path.extname(a);
       const extB = path.extname(b);
+
       if (extA === '.woff2' && extB !== '.woff2') return -1;
       if (extA !== '.woff2' && extB === '.woff2') return 1;
       if (extA === '.woff' && extB !== '.woff' && extB !== '.woff2') return -1;
       if (extA !== '.woff' && extB === '.woff') return 1;
+
       return a.localeCompare(b);
     });
-    
+
     return sorted.slice(0, limit);
   }
 
-  /**
-   * Scan images directory structure for manifest
-   */
+  // --------------------------------------------------
+  // Image manifest scan
+  // --------------------------------------------------
   scanImagesForManifest(imagesDir) {
     const manifest = {
       landing: [],
@@ -119,24 +129,22 @@ class Scanner {
     };
 
     if (!fs.existsSync(imagesDir)) {
-      this.logger.warn(`Images directory not found: ${imagesDir}`);
+      this.logger.warn?.(`Images directory not found: ${imagesDir}`);
       return manifest;
     }
 
-    // Scan landing
     const landingDir = path.join(imagesDir, 'landing');
-    if (fs.existsSync(landingDir)) {
-      manifest.landing = this.getImageFiles(landingDir);
-    }
-
-    // Scan main
     const mainDir = path.join(imagesDir, 'main');
-    if (fs.existsSync(mainDir)) {
-      manifest.main = this.getImageFiles(mainDir);
+    const projectsDir = path.join(imagesDir, 'projects');
+
+    if (fs.existsSync(landingDir)) {
+      manifest.landing = this.getImageFiles(landingDir, imagesDir);
     }
 
-    // Scan projects
-    const projectsDir = path.join(imagesDir, 'projects');
+    if (fs.existsSync(mainDir)) {
+      manifest.main = this.getImageFiles(mainDir, imagesDir);
+    }
+
     if (fs.existsSync(projectsDir)) {
       manifest.projects = this.scanProjects(projectsDir);
     }
@@ -144,30 +152,40 @@ class Scanner {
     return manifest;
   }
 
-  getImageFiles(dir) {
-  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
-  
-  if (!fs.existsSync(dir)) {
-    return [];
+  getImageFiles(dir, imagesRoot) {
+    if (!fs.existsSync(dir)) return [];
+
+    let files;
+    try {
+      files = fs.readdirSync(dir);
+    } catch {
+      return [];
+    }
+
+    return files
+      .filter(f =>
+        this.imageExtensions.includes(path.extname(f).toLowerCase())
+      )
+      .sort()
+      .map(f =>
+        path
+          .relative(imagesRoot, path.join(dir, f))
+          .replace(/\\/g, '/')
+      );
   }
 
-  const files = fs.readdirSync(dir);
-
-  return files
-    .filter(f => imageExtensions.includes(path.extname(f).toLowerCase()))
-    .sort()
-    .map(f => {
-      const rel = path.relative(
-        path.join(dir, '..', '..'),
-        path.join(dir, f)
-      );
-      return rel.replace(/\\/g, '/');
-    });
-}
-
+  // --------------------------------------------------
+  // Projects scan
+  // --------------------------------------------------
   scanProjects(projectsDir) {
     const projects = [];
-    const entries = fs.readdirSync(projectsDir, { withFileTypes: true });
+
+    let entries;
+    try {
+      entries = fs.readdirSync(projectsDir, { withFileTypes: true });
+    } catch {
+      return projects;
+    }
 
     for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
       if (!entry.isDirectory()) continue;
@@ -181,40 +199,52 @@ class Scanner {
   }
 
   parseProject(projectPath, slug) {
-  const projectJsonPath = path.join(projectPath, 'project.json');
-  let metadata = {
-    title: slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-    description: ''
-  };
+    const projectJsonPath = path.join(projectPath, 'project.json');
 
-  if (fs.existsSync(projectJsonPath)) {
-    try {
-      const content = fs.readFileSync(projectJsonPath, 'utf8');
-      const parsed = JSON.parse(content);
-      metadata = { ...metadata, ...parsed };
-    } catch (err) {
-      this.logger.warn(`Invalid project.json in ${slug}: ${err.message}`);
+    let metadata = {
+      title: slug
+        .replace(/-/g, ' ')
+        .replace(/\b\w/g, l => l.toUpperCase()),
+      description: ''
+    };
+
+    if (fs.existsSync(projectJsonPath)) {
+      try {
+        const parsed = JSON.parse(
+          fs.readFileSync(projectJsonPath, 'utf8')
+        );
+        metadata = { ...metadata, ...parsed };
+      } catch (err) {
+        this.logger.warn?.(
+          `Invalid project.json in ${slug}: ${err.message}`
+        );
+      }
     }
+
+    let images = [];
+
+    if (fs.existsSync(projectPath)) {
+      try {
+        const files = fs.readdirSync(projectPath);
+
+        images = files
+          .filter(f =>
+            this.imageExtensions.includes(path.extname(f).toLowerCase())
+          )
+          .sort()
+          .map(f => `images/projects/${slug}/${f}`);
+      } catch {
+        images = [];
+      }
+    }
+
+    return {
+      slug,
+      title: metadata.title,
+      description: metadata.description,
+      images
+    };
   }
-
-  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
-  let images = [];
-
-  if (fs.existsSync(projectPath)) {
-    const files = fs.readdirSync(projectPath);
-
-    images = files
-      .filter(f => imageExtensions.includes(path.extname(f).toLowerCase()))
-      .sort()
-      .map(f => `images/projects/${slug}/${f}`);
-  }
-
-  return {
-    slug,
-    title: metadata.title,
-    description: metadata.description,
-    images
-  };
 }
-}
+
 module.exports = Scanner;
