@@ -21,6 +21,12 @@ window.__MANIFEST__ = {
   ],
   "projects": [
     {
+      "slug": "demon_stration",
+      "title": "Demon Stration",
+      "description": "A staged confrontation between symbols of authority and resistance, examining how political theatre shapes public perception.",
+      "images": []
+    },
+    {
       "slug": "demon_Stration",
       "title": "Demon_Stration",
       "description": "",
@@ -30,32 +36,32 @@ window.__MANIFEST__ = {
     },
     {
       "slug": "ohhhhh_your_god",
-      "title": "Ohhhhh_your_god",
-      "description": "",
+      "title": "Ohhhhh Your God",
+      "description": "A visual commentary on religious spectacle, mass emotion, and the tension between faith, identity, and modern performance.",
       "images": [
         "projects/ohhhhh_your_god/cover.jpg"
       ]
     },
     {
       "slug": "unusuall_usual",
-      "title": "Unusuall_usual",
-      "description": "",
+      "title": "Unusual Usual",
+      "description": "Everyday scenes transformed into quiet visual paradoxes, where normality reveals its hidden strangeness.",
       "images": [
         "projects/unusuall_usual/cover.jpg"
       ]
     },
     {
       "slug": "window_to_redemption",
-      "title": "Window_to_redemption",
-      "description": "",
+      "title": "Window to Redemption",
+      "description": "Urban windows as metaphors for hope, isolation, and the fragile possibility of personal and social transformation.",
       "images": [
         "projects/window_to_redemption/cover.jpg"
       ]
     },
     {
       "slug": "windows_eyes_of_the_modern_soul",
-      "title": "Windows_eyes_of_the_modern_soul",
-      "description": "",
+      "title": "Windows: Eyes of the Modern Soul",
+      "description": "Architectural fragments turned into portraits of contemporary life, reflecting the emotions and contradictions of modern society.",
       "images": [
         "projects/windows_eyes_of_the_modern_soul/cover.jpg"
       ]
