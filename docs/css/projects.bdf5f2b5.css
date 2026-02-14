@@ -16,3 +16,7 @@
   height: auto;
   display: block;
 }
+
+.project-media {
+  cursor: pointer;
+}
