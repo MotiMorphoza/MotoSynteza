@@ -8,9 +8,7 @@ const Scanner = require('./build/scanner');
 const Hasher = require('./build/hasher');
 const HtmlProcessor = require('./build/html-processor');
 const ManifestGenerator = require('./build/manifest-generator');
-const HeadOptimizer = require('./build/head-optimizer');
-const PreloadInjector = require('./build/preload-injector');
-const CspInjector = require('./build/csp-injector');
+const HeadOrchestrator = require('./build/head-orchestrator');
 const Versioning = require('./build/versioning');
 const AtomicDeployer = require('./build/atomic-deployer');
 
@@ -26,9 +24,6 @@ class SuperBuild {
     this.hasher = new Hasher(this.logger);
     this.htmlProcessor = new HtmlProcessor(this.logger);
     this.manifestGenerator = new ManifestGenerator(this.logger);
-    this.headOptimizer = new HeadOptimizer(this.logger);
-    this.preloadInjector = new PreloadInjector(this.logger);
-    this.cspInjector = new CspInjector(this.logger);
     this.versioning = new Versioning(this.logger);
     this.deployer = new AtomicDeployer(this.logger);
     
@@ -75,7 +70,7 @@ class SuperBuild {
       
       // Find and update the hashed version file
       const jsDir = path.join(tempDir, 'js');
-      const files = fs.readdirSync(jsDir);
+      const files = fs.readdirSync(jsDir).sort(); // DETERMINISM FIX: sorted
       const hashedVersionFile = files.find(f => /^build-version\.[a-f0-9]{8}\.js$/.test(f));
       
       if (hashedVersionFile) {
@@ -83,32 +78,32 @@ class SuperBuild {
         fs.writeFileSync(hashedVersionPath, `window.__BUILD_VERSION__ = "${finalVersion}";\n`, 'utf8');
       }
 
-      // Step 8: Process HTML files (update references)
+      // Step 8: Process HTML files (update asset references)
       const htmlFiles = this.scanner.findHtmlFiles(tempDir);
       this.htmlProcessor.processHtmlFiles(htmlFiles, tempDir, renameMap);
 
-      // Step 9: Inject version script into HTML
-      this.versioning.injectVersionScript(htmlFiles, tempDir, versionPath);
+      // Step 9: HEAD ORCHESTRATION (unified stage)
+      this.logger.info('Orchestrating <head> sections');
+      const headOrchestrator = new HeadOrchestrator({
+        logger: this.logger,
+        renameMap: renameMap,
+        manifestData: manifestData,
+        version: finalVersion,
+        buildDir: tempDir,
+        scanner: this.scanner
+      });
 
-      // Step 10: Optimize head tags
-      this.headOptimizer.optimizeAll(htmlFiles, tempDir, manifestData);
+      for (const htmlFile of htmlFiles) {
+        const filePath = path.join(tempDir, htmlFile);
+        let html = fs.readFileSync(filePath, 'utf8');
+        html = headOrchestrator.buildHead(html, htmlFile, filePath);
+        fs.writeFileSync(filePath, html, 'utf8');
+      }
 
-      // Step 11: Inject preloads
-      this.preloadInjector.injectPreloads(
-        htmlFiles,
-        tempDir,
-        renameMap,
-        manifestData,
-        this.scanner
-      );
-
-      // Step 12: Inject strict CSP
-      this.cspInjector.injectCsp(htmlFiles, tempDir);
-
-      // Step 13: Verify all references
+      // Step 10: Verify all references
       this.htmlProcessor.verifyReferences(htmlFiles, tempDir);
 
-      // Step 14: Atomic deployment with rollback protection
+      // Step 11: Atomic deployment with rollback protection
       this.deployer.deploy(this.rootDir);
 
       // Success
