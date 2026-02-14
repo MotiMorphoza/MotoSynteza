@@ -220,4 +220,5 @@ class Scanner {
     images
   };
 }
+}
 module.exports = Scanner;
