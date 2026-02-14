@@ -28,11 +28,11 @@ document.addEventListener("DOMContentLoaded", () => {
     media.loading = index === 0 ? "eager" : "lazy";
 
     if (Array.isArray(project.images) && project.images.length > 0) {
-  media.src = project.images[0];
-} else {
-  media.classList.add("placeholder");
-}
-
+      // Use manifest path directly
+      media.src = project.images[0];
+    } else {
+      media.classList.add("placeholder");
+    }
 
     media.onerror = () => {
       media.classList.add("placeholder");
