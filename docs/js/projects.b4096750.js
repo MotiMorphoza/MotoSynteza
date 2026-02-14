@@ -9,8 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  const BASE_PATH = "images/projects/";
-
   manifest.forEach((project, index) => {
     if (!project?.slug || !project?.title) return;
 
@@ -34,7 +32,8 @@ document.addEventListener("DOMContentLoaded", () => {
     media.loading = index === 0 ? "eager" : "lazy";
 
     if (Array.isArray(project.images) && project.images.length > 0) {
-      media.src = `${BASE_PATH}${project.slug}/${project.images[0]}`;
+      // Use manifest path directly
+      media.src = project.images[0];
     } else {
       media.classList.add("placeholder");
     }

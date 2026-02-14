@@ -1,1 +1,1 @@
-window.__BUILD_VERSION__ = "b73c6a2db559";
+window.__BUILD_VERSION__ = "24f6b7c23347";
