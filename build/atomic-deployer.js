@@ -9,7 +9,7 @@ class AtomicDeployer {
     this.tempDir = '.build-temp';
     this.backupDir = '.docs-backup';
     this.targetDir = 'docs';
-    this.directoriesToCopy = ['css', 'js', 'images', 'partials'];
+    this.directoriesToCopy = ['css', 'js', 'images', 'projects', 'partials'];
   }
 
   // --------------------------------------------------
