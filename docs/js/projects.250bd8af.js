@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function openProject(slug) {
-    fetch("content.html")
+    fetch("projects/demon_stration/content.html")
       .then((res) => res.text())
       .then((html) => {
         rightContainer.innerHTML = html;
