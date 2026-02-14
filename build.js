@@ -94,6 +94,27 @@ class SuperBuild {
 
       fs.writeFileSync(manifestFullPath, manifestJs, 'utf8');
 
+// ---------- Rewrite CSS url() references ----------
+const cssDir = path.join(tempDir, 'css');
+
+if (fs.existsSync(cssDir)) {
+  const cssFiles = fs.readdirSync(cssDir).filter(f => f.endsWith('.css'));
+
+  for (const cssFile of cssFiles) {
+    const cssPath = path.join(cssDir, cssFile);
+    let cssContent = fs.readFileSync(cssPath, 'utf8');
+
+    for (const [oldPath, newPath] of renameMap.entries()) {
+      const escaped = oldPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(escaped, 'g');
+      cssContent = cssContent.replace(regex, newPath);
+    }
+
+    fs.writeFileSync(cssPath, cssContent, 'utf8');
+  }
+}
+
+
       // ---------- HEAD orchestration per page ----------
       const assets = {
         versionScriptPath: hashedVersionFile
