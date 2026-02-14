@@ -72,6 +72,7 @@ class SuperBuild {
       // ---------- Rewrite HTML ----------
       const htmlFiles = this.scanner.findHtmlFiles(tempDir);
       this.htmlProcessor.processHtmlFiles(htmlFiles, tempDir, renameMap);
+
 // Process partials (e.g., sidebar.html)
 const partialsDir = path.join(tempDir, 'partials');
 
@@ -163,6 +164,17 @@ if (fs.existsSync(cssDir)) {
 
       // ---------- Verify ----------
       this.htmlProcessor.verifyReferences(htmlFiles, tempDir);
+
+if (fs.existsSync(partialsDir)) {
+  const partialFiles = fs.readdirSync(partialsDir)
+    .filter(f => f.endsWith('.html'));
+
+  this.htmlProcessor.verifyReferences(
+    partialFiles.map(f => path.join('partials', f)),
+    tempDir
+  );
+}
+
 
       // ---------- Deploy ----------
       this.deployer.deploy(this.rootDir);
