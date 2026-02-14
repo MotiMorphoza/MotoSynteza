@@ -5,7 +5,8 @@
  * Deterministic | Non-destructive | No filesystem access
  */
 class HeadOrchestrator {
-  constructor({ logger, renameMap, manifestData, version, assets }) {
+  constructor({ logger, renameMap, manifestData, version, assets, htmlFile }) {
+    this.htmlFile = htmlFile;
     this.logger = logger;
     this.renameMap = renameMap;
     this.manifestData = manifestData;
@@ -61,12 +62,13 @@ class HeadOrchestrator {
     tags.push(...this.extractAll(existingContent, /<link[^>]*rel=["']stylesheet["'][^>]*>/gi));
 
     // Preload CSS (deterministic from renameMap)
-    const cssPreload = this.getCssPreload();
-    if (cssPreload) tags.push(cssPreload);
+    if (!/projects\.html$/i.test(this.htmlFile)) {
+  const cssPreload = this.getCssPreload();
+  if (cssPreload) tags.push(cssPreload);
 
-    // Preload image (deterministic via manifest + renameMap)
-    const imagePreload = this.getImagePreload();
-    if (imagePreload) tags.push(imagePreload);
+  const imagePreload = this.getImagePreload();
+  if (imagePreload) tags.push(imagePreload);
+}
 
     // Version script
     if (this.assets.versionScriptPath) {

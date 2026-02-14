@@ -137,17 +137,19 @@ class SuperBuild {
           "default-src 'self'; img-src 'self' https: data:; script-src 'self'; style-src 'self'; font-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'"
       };
 
-      for (const htmlFile of htmlFiles) {
-        const filePath = path.join(tempDir, htmlFile);
-        let html = fs.readFileSync(filePath, 'utf8');
+for (const htmlFile of htmlFiles) {
+  const filePath = path.join(tempDir, htmlFile);
+  let html = fs.readFileSync(filePath, 'utf8');
 
-        const headOrchestrator = new HeadOrchestrator({
-          logger: this.logger,
-          renameMap,
-          manifestData,
-          version: finalVersion,
-          assets
-        });
+  const headOrchestrator = new HeadOrchestrator({
+    logger: this.logger,
+    renameMap,
+    manifestData,
+    version: finalVersion,
+    assets,
+    htmlFile
+  });
+
 
         html = headOrchestrator.buildHead(html);
         fs.writeFileSync(filePath, html, 'utf8');
