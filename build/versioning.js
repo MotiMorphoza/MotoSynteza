@@ -76,7 +76,7 @@ class Versioning {
       return;
     }
 
-    const scriptTag = `\n  <script src="/js/${versionFile}"></script>`;
+    const scriptTag = `\n  <script src="js/${versionFile}"></script>`;
     
     // Insert before </head> (case-insensitive)
     const headCloseMatch = html.match(/<\/head>/i);
