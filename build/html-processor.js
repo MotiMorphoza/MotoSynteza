@@ -217,32 +217,42 @@ class HtmlProcessor {
   // HELPERS
   // ================================
   isExternal(url) {
-    return (
-      url.startsWith('http://') ||
-      url.startsWith('https://') ||
-      url.startsWith('//') ||
-      url.startsWith('mailto:') ||
-      url.startsWith('data:')
-    );
-  }
+  if (!url) return true;
 
-  resolveNewPath(href, renameMap, htmlFilePath, buildDir) {
-    let lookupPath = href.startsWith('/') ? href.substring(1) : href;
-
-    if (!href.startsWith('/')) {
-      const htmlDir = path.dirname(htmlFilePath);
-      const absolutePath = path.resolve(htmlDir, href);
-      lookupPath = path
-        .relative(buildDir, absolutePath)
-        .replace(/\\/g, '/');
-    }
-
-    if (renameMap.has(lookupPath)) {
-      return renameMap.get(lookupPath);
-    }
-
-    return href;
-  }
+  return (
+    url.startsWith('#') ||             // anchors
+    url.startsWith('javascript:') ||   // inline JS
+    url.startsWith('http://') ||
+    url.startsWith('https://') ||
+    url.startsWith('//') ||
+    url.startsWith('mailto:') ||
+    url.startsWith('data:')
+  );
 }
 
+  resolveNewPath(href, renameMap, htmlFilePath, buildDir) {
+  if (!href) return href;
+
+  // Normalize
+  const cleanHref = href.replace(/\\/g, '/');
+
+  // Direct match (most important for images/media in partials)
+  if (renameMap.has(cleanHref)) {
+    return renameMap.get(cleanHref);
+  }
+
+  // Relative to file
+  const htmlDir = path.dirname(htmlFilePath);
+  const absolutePath = path.resolve(htmlDir, cleanHref);
+  const relativeFromBuild = path
+    .relative(buildDir, absolutePath)
+    .replace(/\\/g, '/');
+
+  if (renameMap.has(relativeFromBuild)) {
+    return renameMap.get(relativeFromBuild);
+  }
+
+  return href;
+}
+}
 module.exports = HtmlProcessor;
