@@ -1,4 +1,3 @@
-// build/scanner.js
 const fs = require('fs');
 const path = require('path');
 
@@ -18,18 +17,14 @@ class Scanner {
     this.fontExtensions = ['.woff2', '.woff', '.ttf', '.otf', '.eot'];
   }
 
-  // --------------------------------------------------
-  // Generic recursive scanner
-  // --------------------------------------------------
   scanDirectory(dir, extensions = [], additionalExcludes = [], rootDir = dir) {
     const results = [];
-
     if (!fs.existsSync(dir)) return results;
 
     let entries;
     try {
       entries = fs.readdirSync(dir, { withFileTypes: true });
-    } catch {
+    } catch (err) {
       return results;
     }
 
@@ -48,11 +43,10 @@ class Scanner {
           extensions.includes(path.extname(entry.name).toLowerCase())
         ) {
           const relative = path
-  .relative(rootDir, fullPath)
-  .replace(/\\/g, '/');
+            .relative(rootDir, fullPath)
+            .replace(/\\/g, '/');
 
-results.push(relative);
-
+          results.push(relative);
         }
       }
     }
@@ -67,9 +61,6 @@ results.push(relative);
     return false;
   }
 
-  // --------------------------------------------------
-  // Root-level HTML pages only (not fragments)
-  // --------------------------------------------------
   findHtmlFiles(rootDir) {
     if (!fs.existsSync(rootDir)) return [];
 
@@ -85,10 +76,10 @@ results.push(relative);
         const content = fs.readFileSync(fullPath, 'utf8');
         if (/<head[^>]*>/i.test(content)) {
           htmlFiles.push(file);
-        } else {
-          this.logger.debug?.(`Skipping fragment HTML: ${file}`);
+        } else if (this.logger && this.logger.debug) {
+          this.logger.debug(`Skipping fragment HTML: ${file}`);
         }
-      } catch {
+      } catch (err) {
         continue;
       }
     }
@@ -96,9 +87,6 @@ results.push(relative);
     return htmlFiles.sort();
   }
 
-  // --------------------------------------------------
-  // Font discovery (preload candidate)
-  // --------------------------------------------------
   findFonts(dir, limit = 2) {
     const allFonts = this.scanDirectory(
       dir,
@@ -122,33 +110,27 @@ results.push(relative);
     return sorted.slice(0, limit);
   }
 
-  // --------------------------------------------------
-  // Image manifest scan
-  // --------------------------------------------------
-  scanImagesForManifest(imagesDir) {
+  scanImagesForManifest(imagesDir, rootDir) {
     const manifest = {
       landing: [],
       main: [],
       projects: []
     };
 
-    if (!fs.existsSync(imagesDir)) {
-      this.logger.warn?.(`Images directory not found: ${imagesDir}`);
-      return manifest;
+    if (fs.existsSync(imagesDir)) {
+      const landingDir = path.join(imagesDir, 'landing');
+      const mainDir = path.join(imagesDir, 'main');
+
+      if (fs.existsSync(landingDir)) {
+        manifest.landing = this.getImageFiles(landingDir, imagesDir);
+      }
+
+      if (fs.existsSync(mainDir)) {
+        manifest.main = this.getImageFiles(mainDir, imagesDir);
+      }
     }
 
-    const landingDir = path.join(imagesDir, 'landing');
-    const mainDir = path.join(imagesDir, 'main');
-    const projectsDir = path.join(imagesDir, 'projects');
-
-    if (fs.existsSync(landingDir)) {
-      manifest.landing = this.getImageFiles(landingDir, imagesDir);
-    }
-
-    if (fs.existsSync(mainDir)) {
-      manifest.main = this.getImageFiles(mainDir, imagesDir);
-    }
-
+    const projectsDir = path.join(rootDir, 'projects');
     if (fs.existsSync(projectsDir)) {
       manifest.projects = this.scanProjects(projectsDir);
     }
@@ -162,7 +144,7 @@ results.push(relative);
     let files;
     try {
       files = fs.readdirSync(dir);
-    } catch {
+    } catch (err) {
       return [];
     }
 
@@ -172,24 +154,20 @@ results.push(relative);
       )
       .sort()
       .map(f =>
-  'images/' +
-  path
-    .relative(imagesRoot, path.join(dir, f))
-    .replace(/\\/g, '/')
-);
-
+        'images/' +
+        path
+          .relative(imagesRoot, path.join(dir, f))
+          .replace(/\\/g, '/')
+      );
   }
 
-  // --------------------------------------------------
-  // Projects scan
-  // --------------------------------------------------
   scanProjects(projectsDir) {
     const projects = [];
 
     let entries;
     try {
       entries = fs.readdirSync(projectsDir, { withFileTypes: true });
-    } catch {
+    } catch (err) {
       return projects;
     }
 
@@ -221,27 +199,27 @@ results.push(relative);
         );
         metadata = { ...metadata, ...parsed };
       } catch (err) {
-        this.logger.warn?.(
-          `Invalid project.json in ${slug}: ${err.message}`
-        );
+        if (this.logger && this.logger.warn) {
+          this.logger.warn(
+            `Invalid project.json in ${slug}: ${err.message}`
+          );
+        }
       }
     }
 
     let images = [];
 
-    if (fs.existsSync(projectPath)) {
-      try {
-        const files = fs.readdirSync(projectPath);
+    try {
+      const files = fs.readdirSync(projectPath);
 
-        images = files
-          .filter(f =>
-            this.imageExtensions.includes(path.extname(f).toLowerCase())
-          )
-          .sort()
-          .map(f => `images/projects/${slug}/${f}`);
-      } catch {
-        images = [];
-      }
+      images = files
+        .filter(f =>
+          this.imageExtensions.includes(path.extname(f).toLowerCase())
+        )
+        .sort()
+        .map(f => `projects/${slug}/${f}`);
+    } catch (err) {
+      images = [];
     }
 
     return {

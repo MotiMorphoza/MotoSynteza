@@ -35,7 +35,8 @@ class SuperBuild {
       // ---------- Manifest ----------
       const manifestData = this.manifestGenerator.createManifestData(
         this.scanner,
-        path.join(tempDir, 'images')
+        path.join(tempDir, 'images'),
+        tempDir
       );
 
       const manifestPath = path.join(tempDir, 'js', 'image-manifest.js');
@@ -186,7 +187,7 @@ class SuperBuild {
   }
 
   validateSource() {
-    const required = ['index.html', 'css', 'js', 'images'];
+    const required = ['index.html', 'css', 'js', 'images', 'projects'];
 
     for (const item of required) {
       if (!fs.existsSync(path.join(this.rootDir, item))) {
