@@ -6,8 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const manifest = window.__MANIFEST__?.main || [];
   if (!manifest.length) return;
 
-  const path = "images/main";
-
   const slideA = document.createElement("img");
   const slideB = document.createElement("img");
 
@@ -23,32 +21,32 @@ document.addEventListener("DOMContentLoaded", () => {
   let timer = null;
   let running = false;
 
-  current.src = `${path}/${manifest[0]}`;
+  current.src = manifest[0];
 
   function change() {
-  index = (index + 1) % manifest.length;
+    index = (index + 1) % manifest.length;
 
-  const newSrc = `${path}/${manifest[index]}`;
-  const img = new Image();
+    const newSrc = manifest[index];
+    const img = new Image();
 
-  img.onload = () => {
-    next.src = newSrc;
+    img.onload = () => {
+      next.src = newSrc;
 
-    current.classList.remove("active");
-    next.classList.add("active");
+      current.classList.remove("active");
+      next.classList.add("active");
 
-    [current, next] = [next, current];
+      [current, next] = [next, current];
 
-    prefetchNext();
-  };
+      prefetchNext();
+    };
 
-  img.src = newSrc;
-}
+    img.src = newSrc;
+  }
 
   function prefetchNext() {
     const nextIndex = (index + 1) % manifest.length;
     const img = new Image();
-    img.src = `${path}/${manifest[nextIndex]}`;
+    img.src = manifest[nextIndex];
   }
 
   function loop() {
@@ -64,21 +62,19 @@ document.addEventListener("DOMContentLoaded", () => {
   slideB.addEventListener("mouseenter", stop);
   slideB.addEventListener("mouseleave", start);
 
-
   function start() {
-  if (running) return;
-  running = true;
-  loop();
-}
-
-function stop() {
-  running = false;
-  if (timer) {
-    clearTimeout(timer);
-    timer = null;
+    if (running) return;
+    running = true;
+    loop();
   }
-}
 
+  function stop() {
+    running = false;
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+  }
 
   viewport.addEventListener("click", () => {
     stop();
