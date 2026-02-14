@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
       })
       .catch(() => {
         rightContainer.innerHTML =
-          "<p style='padding:20px'>Failed to load project.</p>";
+          "<p class='project-error'>Failed to load project.</p>";
       });
   }
 
@@ -52,8 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
       media.removeAttribute("src");
     };
 
-    // לחיצה על תמונת שער
-    
     media.addEventListener("click", () => openProject(project.slug));
 
     const text = document.createElement("div");
