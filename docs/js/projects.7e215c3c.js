@@ -12,10 +12,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function openProject(slug) {
-    fetch("projects/demon_stration/content.html")
+    fetch(`projects/${slug}/content.html`)
       .then((res) => res.text())
       .then((html) => {
         rightContainer.innerHTML = html;
+
+        // יצירת גלריה
+        const gallery = document.getElementById("project-gallery");
+        if (!gallery) return;
+
+        const basePath = `projects/${slug}/`;
+        const totalImages = 25;
+
+        for (let i = 1; i <= totalImages; i++) {
+          const num = String(i).padStart(2, "0");
+          const img = document.createElement("img");
+          img.src = `${basePath}demon${num}.jpg`;
+          img.alt = `${slug} ${num}`;
+          img.loading = "lazy";
+          gallery.appendChild(img);
+        }
       })
       .catch(() => {
         rightContainer.innerHTML =
@@ -52,6 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
       media.removeAttribute("src");
     };
 
+    // לחיצה על תמונת השער
     media.addEventListener("click", () => openProject(project.slug));
 
     const text = document.createElement("div");
