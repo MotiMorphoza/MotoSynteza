@@ -1,16 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Demon Stration</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="/css/project.css" />
-</head>
-<body>
-
 <div class="project-container" id="project"></div>
 
-<!-- Fullscreen viewer -->
 <div class="viewer" id="viewer">
   <button class="back" id="backBtn">BACK</button>
   <img id="viewerImg" src="" alt="" />
@@ -22,7 +11,7 @@ const viewer = document.getElementById("viewer");
 const viewerImg = document.getElementById("viewerImg");
 const backBtn = document.getElementById("backBtn");
 
-fetch("project.json")
+fetch("images/projects/demon_stration/project.json")
   .then(res => res.json())
   .then(data => {
     data.slides.forEach(slide => {
@@ -37,8 +26,7 @@ fetch("project.json")
       }
 
       const img = document.createElement("img");
-      img.src = slide.file;
-      img.alt = "";
+      img.src = "images/projects/demon_stration/" + slide.file;
       slideEl.appendChild(img);
 
       img.addEventListener("click", () => {
@@ -55,6 +43,3 @@ backBtn.addEventListener("click", () => {
   viewerImg.src = "";
 });
 </script>
-
-</body>
-</html>
