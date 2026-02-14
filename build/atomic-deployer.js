@@ -48,7 +48,7 @@ const htmlFiles = htmlScanner.findHtmlFiles(rootDir);
     }
 
     // Copy directories
-    const directoriesToCopy = ['css', 'js', 'images'];
+    const directoriesToCopy = ['css', 'js', 'images', 'partials'];
     
     for (const dir of directoriesToCopy) {
       const srcPath = path.join(rootDir, dir);
