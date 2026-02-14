@@ -201,7 +201,20 @@ class Scanner {
     }
 
     // Get images
-    const images = this.getImageFiles(projectPath);
+    // Get images inside project folder
+const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+
+let images = [];
+
+if (fs.existsSync(projectPath)) {
+  const files = fs.readdirSync(projectPath);
+
+  images = files
+    .filter(f => imageExtensions.includes(path.extname(f).toLowerCase()))
+    .sort()
+    .map(f => `images/projects/${slug}/${f}`);
+}
+
 
     return {
       slug,
