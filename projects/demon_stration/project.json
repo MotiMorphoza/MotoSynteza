@@ -1,9 +1,11 @@
 {
-  "title": "Demon Stration",
-"description": "A staged confrontation between symbols of authority and resistance, examining how political theatre shapes public perception."
+ "title": "Demon Stration",
+  "description": "A staged confrontation...",
   "slides": [
     { "file": "demon01.jpg", "caption": "Authority confronting resistance" },
     { "file": "demon02.jpg" },
     { "file": "demon03.jpg", "caption": "Staged power structures" }
   ]
 }
+{
+ 
