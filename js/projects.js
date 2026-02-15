@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // לינק רגיל לדף הפרויקט
     const link = document.createElement("a");
-    link.href = `projects/${project.slug}/content.html`;
+    link.href = `project-${project.slug}.html`;
     link.className = "project-link";
 
     const media = document.createElement("img");
