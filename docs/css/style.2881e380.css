@@ -431,19 +431,19 @@ body {
 
 /* אזור הפרויקט בתוך הקונטיינר הימני */
 .project-content {
-  max-width: 1000px;
+  max-width: 500px;
   margin: 0 auto;
   padding: 40px 20px;
 }
 
 /* גלריה */
 .project-gallery {
-  width: 100%;
+  width: 50%;
 }
 
 /* התאמת התמונות לרוחב הקונטיינר */
 .project-gallery img {
-  width: 100%;
+  width: 50%;
   height: auto;
   display: block;
   margin-bottom: 30px;
