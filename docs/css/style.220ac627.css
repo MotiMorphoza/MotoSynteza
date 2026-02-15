@@ -429,17 +429,26 @@ body {
     display: none;
   }
 
-.project-gallery {
-  max-width: 1200px;
+/* אזור הפרויקט בתוך הקונטיינר הימני */
+.project-content {
+  max-width: 1000px;
   margin: 0 auto;
+  padding: 40px 20px;
 }
 
+/* גלריה */
+.project-gallery {
+  width: 100%;
+}
+
+/* התאמת התמונות לרוחב הקונטיינר */
 .project-gallery img {
   width: 100%;
   height: auto;
   display: block;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
+
 
 
 }
