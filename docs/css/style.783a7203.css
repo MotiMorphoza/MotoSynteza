@@ -359,6 +359,27 @@ body {
   gap: 2.5rem;
 }
 
+
+/* אזור התוכן של פרויקט */
+.content-pane .project-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* הגלריה */
+.content-pane .project-gallery {
+  width: 100%;
+}
+
+/* התמונות */
+.content-pane .project-gallery img {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-bottom: 30px;
+}
+
 /* ===== MOBILE PROJECT CARDS ===== */
 @media (max-width: 900px) {
   .shell-layout {
@@ -428,26 +449,6 @@ body {
   .separator {
     display: none;
   }
-
-/* אזור התוכן של פרויקט */
-.content-pane .project-content {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 40px 20px;
-}
-
-/* הגלריה */
-.content-pane .project-gallery {
-  width: 100%;
-}
-
-/* התמונות */
-.content-pane .project-gallery img {
-  width: 100%;
-  height: auto;
-  display: block;
-  margin-bottom: 30px;
-}
 
 
 
