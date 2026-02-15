@@ -1,8 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const listEl = document.getElementById("projects-list");
-  const rightContainer = document.getElementById("right-container");
-
-  if (!listEl || !rightContainer) return;
+  if (!listEl) return;
 
   const manifest = window.__MANIFEST__?.projects;
 
@@ -23,11 +21,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const grid = document.createElement("div");
     grid.className = "project-grid";
 
-    // לינק אמיתי כמו בתפריט
+    // לינק רגיל לדף הפרויקט
     const link = document.createElement("a");
-link.href = "content.html";
-link.className = "project-link";
-
+    link.href = `projects/${project.slug}/content.html`;
+    link.className = "project-link";
 
     const media = document.createElement("img");
     media.className = "project-media";
