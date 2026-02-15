@@ -25,6 +25,7 @@ window.__MANIFEST__ = {
       "title": "Demon Stration",
       "description": "A staged confrontation between symbols of authority and resistance, examining how political theatre shapes public perception.",
       "images": [
+        "projects/demon_stration/1demon03.jpg",
         "projects/demon_stration/cover.jpg",
         "projects/demon_stration/demon01.jpg",
         "projects/demon_stration/demon02.jpg",
